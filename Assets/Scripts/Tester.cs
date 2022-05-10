@@ -6,9 +6,9 @@ public class Tester : MonoBehaviour
 {
     void Start()
     {
-        //GammaTest();
+        GammaTest();
         NeuralNetwork neuralNetwork = new NeuralNetwork(3, new int[] { 25, 25 }, 1);
-        neuralNetwork.FeedForward(new float[] { 0, 0, 0 });
+        //neuralNetwork.FeedForward(new float[] { 0, 0, 0 });
 
         for (int i = 0; i < 5000; i++)
         {

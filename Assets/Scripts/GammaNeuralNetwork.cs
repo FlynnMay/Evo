@@ -55,8 +55,8 @@ public class GammaNeuralNetwork
 
     public class Layer
     {
-        int numberOfInputs; // number of neurons in the previous layer
-        int numberOfOutputs; // number of neurons in the current layer
+        int numberOfInputs; // number of neurons in the current layer
+        int numberOfOutputs; // number of neurons in the next layer
 
         public float[] outputs;
         public float[] inputs;
@@ -74,7 +74,7 @@ public class GammaNeuralNetwork
             numberOfInputs = _numberOfInputs;
             numberOfOutputs = _numberOfOutputs;
 
-            inputs = new float[numberOfOutputs];
+            inputs = new float[numberOfInputs];
             outputs = new float[numberOfOutputs];
             weights = new float[numberOfOutputs, numberOfInputs];
             weightsDelta = new float[numberOfOutputs, numberOfInputs];
