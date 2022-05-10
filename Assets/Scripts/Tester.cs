@@ -6,9 +6,9 @@ public class Tester : MonoBehaviour
 {
     void Start()
     {
-        GammaTest();
+        //GammaTest();
         NeuralNetwork neuralNetwork = new NeuralNetwork(3, new int[] { 25, 25 }, 1);
-        //neuralNetwork.FeedForward(new float[] { 0, 0, 0 });
+        neuralNetwork.FeedForward(new float[] { 0, 0, 0 });
 
         for (int i = 0; i < 5000; i++)
         {
@@ -57,42 +57,43 @@ public class Tester : MonoBehaviour
         // number of outputs = 1 
 
         GammaNeuralNetwork net = new GammaNeuralNetwork(new int[] { 3, 25, 25, 1 });
+        net.FeedForward(new float[] { 0, 0, 0 });
 
-        for (int i = 0; i < 5000; i++)
-        {
-            net.FeedForward(new float[] { 0, 0, 0 });
-            net.BackProp(new float[] { 0 });
+        //for (int i = 0; i < 5000; i++)
+        //{
+        //    net.FeedForward(new float[] { 0, 0, 0 });
+        //    net.BackProp(new float[] { 0 });
 
-            net.FeedForward(new float[] { 0, 0, 1 });
-            net.BackProp(new float[] { 1 });
+        //    net.FeedForward(new float[] { 0, 0, 1 });
+        //    net.BackProp(new float[] { 1 });
 
-            net.FeedForward(new float[] { 0, 1, 0 });
-            net.BackProp(new float[] { 1 });
+        //    net.FeedForward(new float[] { 0, 1, 0 });
+        //    net.BackProp(new float[] { 1 });
 
-            net.FeedForward(new float[] { 0, 1, 1 });
-            net.BackProp(new float[] { 0 });
+        //    net.FeedForward(new float[] { 0, 1, 1 });
+        //    net.BackProp(new float[] { 0 });
 
-            net.FeedForward(new float[] { 1, 0, 0 });
-            net.BackProp(new float[] { 1 });
+        //    net.FeedForward(new float[] { 1, 0, 0 });
+        //    net.BackProp(new float[] { 1 });
 
-            net.FeedForward(new float[] { 1, 0, 1 });
-            net.BackProp(new float[] { 0 });
+        //    net.FeedForward(new float[] { 1, 0, 1 });
+        //    net.BackProp(new float[] { 0 });
 
-            net.FeedForward(new float[] { 1, 1, 0 });
-            net.BackProp(new float[] { 0 });
+        //    net.FeedForward(new float[] { 1, 1, 0 });
+        //    net.BackProp(new float[] { 0 });
 
-            net.FeedForward(new float[] { 1, 1, 1 });
-            net.BackProp(new float[] { 1 });
-        }
+        //    net.FeedForward(new float[] { 1, 1, 1 });
+        //    net.BackProp(new float[] { 1 });
+        //}
 
-        Debug.Log(net.FeedForward(new float[] { 0, 0, 0 })[0]);
-        Debug.Log(net.FeedForward(new float[] { 0, 0, 1 })[0]);
-        Debug.Log(net.FeedForward(new float[] { 0, 1, 0 })[0]);
-        Debug.Log(net.FeedForward(new float[] { 0, 1, 1 })[0]);
-        Debug.Log(net.FeedForward(new float[] { 1, 0, 0 })[0]);
-        Debug.Log(net.FeedForward(new float[] { 1, 0, 1 })[0]);
-        Debug.Log(net.FeedForward(new float[] { 1, 1, 0 })[0]);
-        Debug.Log(net.FeedForward(new float[] { 1, 1, 1 })[0]);
+        //Debug.Log(net.FeedForward(new float[] { 0, 0, 0 })[0]);
+        //Debug.Log(net.FeedForward(new float[] { 0, 0, 1 })[0]);
+        //Debug.Log(net.FeedForward(new float[] { 0, 1, 0 })[0]);
+        //Debug.Log(net.FeedForward(new float[] { 0, 1, 1 })[0]);
+        //Debug.Log(net.FeedForward(new float[] { 1, 0, 0 })[0]);
+        //Debug.Log(net.FeedForward(new float[] { 1, 0, 1 })[0]);
+        //Debug.Log(net.FeedForward(new float[] { 1, 1, 0 })[0]);
+        //Debug.Log(net.FeedForward(new float[] { 1, 1, 1 })[0]);
     }
 
     void Update()
