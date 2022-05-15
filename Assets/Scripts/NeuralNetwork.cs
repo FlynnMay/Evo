@@ -7,8 +7,8 @@ using Random = System.Random;
 public class NeuralNetwork
 {
     // Please for the love of god find a better name for this
-    int[] neuronCountsInEachLayer;
-    Layer[] layers;
+    public int[] neuronCountsInEachLayer;
+    public Layer[] layers;
     Random random;
 
     public int WeightDecay { get; private set; }
@@ -41,13 +41,16 @@ public class NeuralNetwork
             layers[i] = new Layer(neuronCountsInEachLayer[i], neuronCountsInEachLayer[i + 1], random);
         }
 
-        layers[layers.Length - 1] = new Layer(neuronCountsInEachLayer[neuronCountsInEachLayer.Length - 1], 0, random);
+        layers[layers.Length - 1] = new Layer(neuronCountsInEachLayer[neuronCountsInEachLayer.Length - 1], 1, random);
 
         // Loop through each layer again and connect them
         for (int i = 1; i < layers.Length; i++)
         {
             layers[i - 1].Connect(layers[i]);
         }
+
+        Layer lastLayer = layers[layers.Length - 1];
+        lastLayer.Connect(lastLayer);
 
         Debug.Log("Network Generated");
     }
@@ -60,37 +63,33 @@ public class NeuralNetwork
         // feed every other layer with the outputs of the prv layers
         for (int i = 1; i < layers.Length; i++)
         {
-            float[] lastOutputs = layers[i - 1].outputs;
+            float[] lastOutputs = layers[i - 1].outputs.Select(o => o.value).ToArray();
             layers[i].FeedForward(lastOutputs);
         }
         // return the final output
-        return layers[layers.Length - 1].GetInputs();
+        return layers[layers.Length - 1].outputs.Select(o => o.value).ToArray();
     }
 
     public void BackPropagation(float[] expected)
     {
-        for (int i = layers.Length - 1; i >= 0; i--)
+        layers[layers.Length - 1].BackPropagation(expected);
+        for (int i = layers.Length - 2; i >= 0; i--)
         {
-            if (i == layers.Length - 1)
-                layers[i].BackPropOutput(expected);
-            else
-                layers[i].BackPropHidden(layers[i + 1].GetBiases(), layers[i + 1].GetWeights());
+            layers[i].BackPropagation(layers[i + 1].GetDesiredValues());
         }
 
-        for (int i = 0; i < layers.Length; i++)
+        for (int i = layers.Length - 1; i >= 0; i--)
+        {
             layers[i].UpdateWeights();
-
-
+        }
     }
 
     public class Layer
     {
         public Neuron[] neurons;
+        public OutputData[] outputs;
 
         Random random;
-        //Layer nextLayer;
-
-        public float[] outputs;
 
         private const float WeightDecay = 0.001f;
         private const float LearningRate = 1f;
@@ -99,7 +98,7 @@ public class NeuralNetwork
         {
             random = _random;
             neurons = new Neuron[inputCount];
-            outputs = new float[outputCount];
+            outputs = new OutputData[outputCount];
             for (int i = 0; i < neurons.Length; i++)
             {
                 neurons[i] = new Neuron(random);
@@ -114,22 +113,20 @@ public class NeuralNetwork
             for (int i = 0; i < outputs.Length; i++)
             {
                 // Reset their output
-                outputs[i] = 0;
+                outputs[i].value = 0;
                 // For all current neurons
                 for (int j = 0; j < neurons.Length; j++)
                 {
                     // increase outputs[i] by the weight from all the shared connections
                     Neuron currentNeuron = neurons[j];
-                    if (currentNeuron.connections == null)
-                        break;
 
-                    outputs[i] += currentNeuron.inputValue * currentNeuron.connections[i].weight;
+                    outputs[i].value += currentNeuron.inputValue * currentNeuron.connections[i].weight;
                 }
                 // Sigmoid the next layers neurons 
-                outputs[i] = Sigmoid(outputs[i]);
+                outputs[i].value = Sigmoid(outputs[i].value + outputs[i].bias);
             }
 
-            return outputs;
+            return outputs.Select(o => o.value).ToArray();
         }
 
         void SetNeuronInputValues(float[] inputs)
@@ -140,62 +137,67 @@ public class NeuralNetwork
             }
         }
 
-        public float[,] GetWeights()
-        {
-            float[,] weights = new float[neurons.Length, neurons[0].connections.Length];
+        //public float[,] GetWeights()
+        //{
+        //    float[,] weights = new float[neurons.Length, neurons[0].connections.Length];
 
-            for (int i = 0; i < neurons.Length; i++)
+        //    for (int i = 0; i < neurons.Length; i++)
+        //    {
+        //        for (int j = 0; j < neurons[i].connections.Length; j++)
+        //        {
+        //            weights[i, j] = neurons[i].connections[j].weight;
+        //        }
+        //    }
+
+        //    return weights;
+        //}
+
+        //public float[] GetBiases()
+        //{
+        //    return neurons.Select(n => n.bias).ToArray();
+        //}
+
+        public void BackPropagation(float[] expected)
+        {
+            for (int i = 0; i < outputs.Length; i++)
             {
-                for (int j = 0; j < neurons[i].connections.Length; j++)
+                OutputData output = outputs[i];
+                output.error = output.value - expected[i];
+                float biasNudge = SigmoidDerivative(output.value) * (output.error);
+                output.biasNudge += biasNudge;
+                for (int j = 0; j < neurons.Length; j++)
                 {
-                    weights[i, j] = neurons[i].connections[j].weight;
+                    Neuron neuron = neurons[j];
+                    Connection connection = neuron.connections[i];
+                    connection.weightNudge += neuron.inputValue * biasNudge;
+
+                    neuron.desiredValue += connection.weight * biasNudge;
+                    neuron.connections[i] = connection;
                 }
+                outputs[i] = output;
             }
-
-            return weights;
-        }
-
-        public float[] GetBiases()
-        {
-            return neurons.Select(n => n.bias).ToArray();
-        }
-
-        public void BackPropOutput(float[] expected)
-        {
-            // For outputs
-                // set neurons error to output - expected
-
-            // For outputs
-                // set bias to error * sigDeriv(output)
-            
-            // For outputs
-                // For Inputs
-                    // Set weightNudge to bias * input
-        }
-
-        public void BackPropHidden(float[] nextBiases, float[,] nextWeights)
-        {
-            // for outputs
-                // reset bias
-                // for next biases
-                    // bias += nextbias * nextweight
-                // bias *= SidDeriv(output)
-
-            // for outputs
-                // for inputs
-                    // weightNudge = bias * input
         }
 
         public void UpdateWeights()
         {
-            for (int i = 0; i < neurons.Length; i++)
+            for (int i = 0; i < outputs.Length; i++)
             {
-                for (int j = 0; j < neurons[i].connections.Length; j++)
+                OutputData output = outputs[i];
+                output.bias += output.biasNudge * LearningRate;
+                output.bias += 1 - WeightDecay;
+                output.biasNudge = 0;
+
+                for (int j = 0; j < neurons.Length; j++)
                 {
-                    Connection connection = neurons[i].connections[j];
-                    connection.weight -= connection.weightNudge * LearningRate;
-                    neurons[i].connections[j] = connection;
+                    Neuron neuron = neurons[j];
+                    Connection connection = neuron.connections[i];
+                    connection.weight += connection.weightNudge * LearningRate;
+                    connection.weight *= 1 - WeightDecay;
+                    connection.weightNudge = 0;
+                    neuron.desiredValue = 0;
+                    neuron.connections[i] = connection;
                 }
+                outputs[i] = output;
             }
         }
 
@@ -209,7 +211,9 @@ public class NeuralNetwork
                 for (int j = 0; j < otherLayer.neurons.Length; j++)
                 {
                     Neuron otherNeuron = otherLayer.neurons[j];
-                    currentNeuron.EstablishOneWayConnection(otherNeuron, j, (float)random.NextDouble() - 0.5f);
+                    float weight = (float)random.NextDouble() - 0.5f;
+                    currentNeuron.EstablishOneWayConnection(otherNeuron, j, weight);
+                    //otherNeuron.EstablishOneWayConnection(currentNeuron, i, weight);
                 }
             }
         }
@@ -218,25 +222,33 @@ public class NeuralNetwork
         {
             return neurons.Select(n => n.inputValue).ToArray();
         }
+
+        public float[] GetDesiredValues()
+        {
+            return neurons.Select(n => n.desiredValue).ToArray();
+        }
     }
 
     public class Neuron
     {
         public float inputValue;
-        public float bias;
-        public float biasNudge;
         public float desiredValue;
-        public float error;
+
+        //--Moved to "OutputData"---
+        //public float bias;
+        //public float biasNudge;
+        //public float error;
+        //--------------------------
         public Connection[] connections;
         public Random random;
 
         public Neuron(Random _random)
         {
             inputValue = 0;
-            bias = 0;
-            biasNudge = 0;
             desiredValue = 0;
-            error = 0;
+            //bias = 0;
+            //biasNudge = 0;
+            //error = 0;
             random = _random;
         }
 
@@ -262,6 +274,14 @@ public class NeuralNetwork
             right = _right;
             weight = _weight;
         }
+    }
+
+    public struct OutputData
+    {
+        public float value;
+        public float bias;
+        public float biasNudge;
+        public float error;
     }
 
     static float Sigmoid(float x)

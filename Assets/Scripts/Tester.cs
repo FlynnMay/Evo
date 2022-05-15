@@ -7,27 +7,38 @@ public class Tester : MonoBehaviour
     void Start()
     {
         //GammaTest();
-        NeuralNetwork neuralNetwork = new NeuralNetwork(3, new int[] { 25, 25 }, 1);
+        NeuralTest();
+        //NewralNet net = new NewralNet(3, new int[] { 25, 25 }, 1);
+        //net.FeedForward(new float[] { 1, 0, 0 });
+
+    }
+
+    private static void NeuralTest()
+    {
+        NewralNet neuralNetwork = new NewralNet(3, new int[] { 25, 25 }, 1);
+
+        Debug.Log($"Layers: {neuralNetwork.layers.Length}");
+
         neuralNetwork.FeedForward(new float[] { 0, 0, 0 });
 
         for (int i = 0; i < 5000; i++)
         {
             neuralNetwork.FeedForward(new float[] { 0, 0, 0 });
-            neuralNetwork.BackPropagation(new float[] { 0 });
+            neuralNetwork.BackPropagate(new float[] { 0 });
             neuralNetwork.FeedForward(new float[] { 0, 0, 1 });
-            neuralNetwork.BackPropagation(new float[] { 1 });
+            neuralNetwork.BackPropagate(new float[] { 1 });
             neuralNetwork.FeedForward(new float[] { 0, 1, 0 });
-            neuralNetwork.BackPropagation(new float[] { 1 });
+            neuralNetwork.BackPropagate(new float[] { 1 });
             neuralNetwork.FeedForward(new float[] { 0, 1, 1 });
-            neuralNetwork.BackPropagation(new float[] { 0 });
+            neuralNetwork.BackPropagate(new float[] { 0 });
             neuralNetwork.FeedForward(new float[] { 1, 0, 0 });
-            neuralNetwork.BackPropagation(new float[] { 1 });
+            neuralNetwork.BackPropagate(new float[] { 1 });
             neuralNetwork.FeedForward(new float[] { 1, 0, 1 });
-            neuralNetwork.BackPropagation(new float[] { 0 });
+            neuralNetwork.BackPropagate(new float[] { 0 });
             neuralNetwork.FeedForward(new float[] { 1, 1, 0 });
-            neuralNetwork.BackPropagation(new float[] { 0 });
+            neuralNetwork.BackPropagate(new float[] { 0 });
             neuralNetwork.FeedForward(new float[] { 1, 1, 1 });
-            neuralNetwork.BackPropagation(new float[] { 1 });
+            neuralNetwork.BackPropagate(new float[] { 1 });
         }
 
         Debug.Log(neuralNetwork.FeedForward(new float[] { 0, 0, 0 })[0]);
@@ -98,6 +109,6 @@ public class Tester : MonoBehaviour
 
     void Update()
     {
-        
+
     }
 }
