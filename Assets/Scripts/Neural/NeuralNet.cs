@@ -16,27 +16,40 @@ public class NeuralNet : MonoBehaviour
 
     public NeuralNet(int inputNeuronsCount, int[] hiddenLayersNeuronCounts, int outputNeuronsCount, Random _random = null)
     {
-        random = (_random != null) ? _random : new Random();
+        // make a new random if random is null
+        random = _random ?? new Random();
 
         SetNeuronCounts(inputNeuronsCount, hiddenLayersNeuronCounts, outputNeuronsCount);
 
+        InitLayers();
+
+        ConnectLayerNeurons();
+
+        Debug.Log("Network Generated");
+    }
+
+    private void ConnectLayerNeurons()
+    {
+        for (int i = layers.Length - 1; i >= 1; i--)
+        {
+            layers[i - 1].ConnectLayer(layers[i]);
+        }
+    }
+
+    private void InitLayers()
+    {
         // Initialise the layers array
         layers = new Layer[neuronCountsInEachLayer.Length];
 
+        // Set the input layer 
         layers[0] = new Layer(neuronCountsInEachLayer[0], neuronCountsInEachLayer[1], random);
+
+        // Set the hidden layers ('i' starts at 1 to skip input and 'layers.length - 1' ignores output)
         for (int i = 1; i < layers.Length - 1; i++)
-        {
             layers[i] = new Layer(neuronCountsInEachLayer[i], neuronCountsInEachLayer[i + 1], layers[i - 1], random);
-        }
 
-        layers[layers.Length - 1] = new Layer(neuronCountsInEachLayer[neuronCountsInEachLayer.Length - 1], 1, layers[layers.Length - 2], random);
-
-        for (int i = layers.Length - 1; i >= 1; i--)
-        {
-            layers[i - 1].Connect(layers[i]);
-        }
-
-        Debug.Log("Network Generated");   
+        // Set the output layer (input neurons is set to the count of at the end of the count array, output is set to the same)
+        layers[layers.Length - 1] = new Layer(neuronCountsInEachLayer[neuronCountsInEachLayer.Length - 1], neuronCountsInEachLayer[neuronCountsInEachLayer.Length - 1], layers[layers.Length - 2], random);
     }
 
     void SetNeuronCounts(int inputNeuronsCount, int[] hiddenLayersNeuronCounts, int outputNeuronsCount)
@@ -70,10 +83,14 @@ public class NeuralNet : MonoBehaviour
 
     public void BackPropagate(float[] expected)
     {
-        expected = layers[layers.Length - 1].BackPropagate(expected);
+        // Backpropagate the output with the expected values
+        // FIX: Currently im trying to take the outputs of this layer to be used as the previous layers expected,
+        // but i assume that is wrong
+        expected = layers[layers.Length - 1].BackPropagateLayer(expected);
+
         for (int i = layers.Length - 2; i >= 0; i--)
         {
-            layers[i].BackPropagate(expected);
+            layers[i].BackPropagateLayer(expected);
         }
 
         for (int i = 0; i < layers.Length; i++)
@@ -109,11 +126,7 @@ public class Layer
 
     public float[] FeedForward(float[] inputs)
     {
-        for (int i = 0; i < neurons.Length; i++)
-        {
-            Neuron neuron = neurons[i];
-            neuron.value = inputs[i];
-        }
+        SetInputValues(inputs);
 
         for (int i = 0; i < outputs.Length; i++)
         {
@@ -121,29 +134,51 @@ public class Layer
             for (int j = 0; j < neurons.Length; j++)
             {
                 Neuron neuron = neurons[j];
+                // Use the output index to get the connection between the current neuron and the output values
                 Connection connection = neuron.connections[i];
+                // Apply the weighted value to the next output value
                 output.value += neuron.value * connection.weight;
+                // Update the connection in the array
                 neuron.connections[i] = connection;
             }
+            // Use the transfer function applying the bias as an activation threshold
             output.value = Sigmoid(output.value + output.bias);
+            
+            // Update the output in the array
             outputs[i] = output;
         }
 
+        // Use the output data in as the next feeds inputs
         return outputs.Select(o => o.value).ToArray();
     }
 
-    public float[] BackPropagate(float[] expected)
+    void SetInputValues(float[] inputs)
     {
-        int totalConnections = neurons.Where(n => n.connections.Length > 0).Count();
+        for (int i = 0; i < neurons.Length; i++)
+        {
+            Neuron neuron = neurons[i];
+            neuron.value = inputs[i];
+        }
+    }
 
-        if (totalConnections <= 0)
-            return expected;
+    public float[] BackPropagateLayer(float[] expected)
+    {
+        //int totalConnections = neurons.Where(n => n.connections != null).Count();
+
+        //if (totalConnections <= 0)
+        //    return expected;
 
         for (int i = 0; i < outputs.Length; i++)
         {
             OutputData output = outputs[i];
+
+            // Set the desired value to its expected value
             output.desiredValue = expected[i];
+            
+            // Calculate how changes in the output value change the error, 2(a-y)
             output.error = 2 * (output.value - output.desiredValue);
+
+            // honestly cant remember where i got this from
             output.biasNudge += SigmoidDerivative(output.value) * output.error;
 
             for (int j = 0; j < neurons.Length; j++)
@@ -151,17 +186,20 @@ public class Layer
                 Neuron neuron = neurons[i];
                 Connection connection = neuron.connections[i];
 
+                // How should 'w' change for 'a' to change in such a way that 'error' decreases
+                // 'a' might actually be the output value in this case, i dont rememner
                 connection.weightNudge = neuron.value * output.error;
                 
+                // Update the connections
                 neuron.connections[i] = connection;
             }
             outputs[i] = output;
         }
-
+        // Use the output values for the next expected
         return outputs.Select(o => o.value).ToArray();
     }
 
-    public void Connect(Layer otherLayer)
+    public void ConnectLayer(Layer otherLayer)
     {
         Neuron[] otherNeurons = otherLayer.neurons;
         for (int i = 0; i < neurons.Length; i++)
@@ -171,7 +209,7 @@ public class Layer
             for (int j = 0; j < otherNeurons.Length; j++)
             {
                 Neuron otherNeuron = otherNeurons[j];
-                currentNeuron.Connect(otherNeuron, j, random);
+                currentNeuron.ConnectNeuron(otherNeuron, j, random);
             }
         }
     }
@@ -214,7 +252,7 @@ public class Neuron
     public Connection[] connections;
 
     // Creates a connection to the other neuron, if random is null the weight will be 0
-    public void Connect(Neuron otherNeuron, int index, Random random)
+    public void ConnectNeuron(Neuron otherNeuron, int index, Random random)
     {
         connections[index] = new Connection(this, otherNeuron, random == null ? 0.0f : (float)random.NextDouble() - 0.5f);
     }
