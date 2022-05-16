@@ -6,25 +6,19 @@ public class Tester : MonoBehaviour
 {
     void Start()
     {
-        //GammaTest();
         NeuralTest();
-        //NewralNet net = new NewralNet(3, new int[] { 25, 25 }, 1);
-        //net.FeedForward(new float[] { 1, 0, 0 });
-
     }
 
     private static void NeuralTest()
     {
-        NewralNet neuralNetwork = new NewralNet(3, new int[] { 25, 25 }, 1);
+        NeuralNet neuralNetwork = new NeuralNet(3, new int[] { 4 }, 1);
 
         Debug.Log($"Layers: {neuralNetwork.layers.Length}");
-
-        neuralNetwork.FeedForward(new float[] { 0, 0, 0 });
 
         for (int i = 0; i < 5000; i++)
         {
             neuralNetwork.FeedForward(new float[] { 0, 0, 0 });
-            neuralNetwork.BackPropagate(new float[] { 0 });
+            neuralNetwork.BackPropagate(new float[] { 1 });
             neuralNetwork.FeedForward(new float[] { 0, 0, 1 });
             neuralNetwork.BackPropagate(new float[] { 1 });
             neuralNetwork.FeedForward(new float[] { 0, 1, 0 });

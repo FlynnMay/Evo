@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = System.Random;
 
-// Im running out of name ideas
-public class NewralNet : MonoBehaviour
+public class NeuralNet : MonoBehaviour
 {
     public int[] neuronCountsInEachLayer;
     public Layer[] layers;
@@ -15,7 +14,7 @@ public class NewralNet : MonoBehaviour
     public int WeightDecay { get; private set; }
     public float LearningRate { get; private set; }
 
-    public NewralNet(int inputNeuronsCount, int[] hiddenLayersNeuronCounts, int outputNeuronsCount, Random _random = null)
+    public NeuralNet(int inputNeuronsCount, int[] hiddenLayersNeuronCounts, int outputNeuronsCount, Random _random = null)
     {
         random = (_random != null) ? _random : new Random();
 
@@ -23,19 +22,21 @@ public class NewralNet : MonoBehaviour
 
         // Initialise the layers array
         layers = new Layer[neuronCountsInEachLayer.Length];
-        layers[0] = new Layer(neuronCountsInEachLayer[0], neuronCountsInEachLayer[1], 0, random);
+
+        layers[0] = new Layer(neuronCountsInEachLayer[0], neuronCountsInEachLayer[1], random);
         for (int i = 1; i < layers.Length - 1; i++)
         {
-            layers[i] = new Layer(neuronCountsInEachLayer[i], neuronCountsInEachLayer[i + 1], layers[i - 1], i, random);
+            layers[i] = new Layer(neuronCountsInEachLayer[i], neuronCountsInEachLayer[i + 1], layers[i - 1], random);
         }
-        layers[layers.Length - 1] = new Layer(neuronCountsInEachLayer[neuronCountsInEachLayer.Length - 1], 0, layers[layers.Length - 2], layers.Length - 1, random);
+
+        layers[layers.Length - 1] = new Layer(neuronCountsInEachLayer[neuronCountsInEachLayer.Length - 1], 1, layers[layers.Length - 2], random);
 
         for (int i = layers.Length - 1; i >= 1; i--)
         {
             layers[i - 1].Connect(layers[i]);
         }
 
-        Debug.Log("Network Generated");
+        Debug.Log("Network Generated");   
     }
 
     void SetNeuronCounts(int inputNeuronsCount, int[] hiddenLayersNeuronCounts, int outputNeuronsCount)
@@ -88,11 +89,9 @@ public class Layer
     public Neuron[] neurons;
     public OutputData[] outputs;
     Random random;
-    int index = -1;
 
-    public Layer(int inputCount, int outputCount, int _index, Random _random)
+    public Layer(int inputCount, int outputCount, Random _random)
     {
-        index = _index;
         neurons = new Neuron[inputCount];
         outputs = new OutputData[outputCount];
         random = _random;
@@ -103,7 +102,7 @@ public class Layer
         }
     }
 
-    public Layer(int inputCount, int outputCount, Layer _prevLayer, int _index, Random _random) : this(inputCount, outputCount, _index, _random)
+    public Layer(int inputCount, int outputCount, Layer _prevLayer, Random _random) : this(inputCount, outputCount, _random)
     {
         prevLayer = _prevLayer;
     }
@@ -135,12 +134,17 @@ public class Layer
 
     public float[] BackPropagate(float[] expected)
     {
+        int totalConnections = neurons.Where(n => n.connections.Length > 0).Count();
+
+        if (totalConnections <= 0)
+            return expected;
+
         for (int i = 0; i < outputs.Length; i++)
         {
             OutputData output = outputs[i];
             output.desiredValue = expected[i];
             output.error = 2 * (output.value - output.desiredValue);
-            output.biasNudge += output.error;
+            output.biasNudge += SigmoidDerivative(output.value) * output.error;
 
             for (int j = 0; j < neurons.Length; j++)
             {
