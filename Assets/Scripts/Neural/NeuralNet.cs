@@ -42,14 +42,14 @@ public class NeuralNet : MonoBehaviour
         layers = new Layer[neuronCountsInEachLayer.Length];
 
         // Set the input layer 
-        layers[0] = new Layer(neuronCountsInEachLayer[0], neuronCountsInEachLayer[1], random);
+        layers[0] = new Layer(neuronCountsInEachLayer[0], neuronCountsInEachLayer[1], Layer.LayerType.INPUT, random);
 
         // Set the hidden layers ('i' starts at 1 to skip input and 'layers.length - 1' ignores output)
         for (int i = 1; i < layers.Length - 1; i++)
-            layers[i] = new Layer(neuronCountsInEachLayer[i], neuronCountsInEachLayer[i + 1], layers[i - 1], random);
+            layers[i] = new Layer(neuronCountsInEachLayer[i], neuronCountsInEachLayer[i + 1], layers[i - 1], Layer.LayerType.HIDDEN, random);
 
         // Set the output layer (input neurons is set to the count of at the end of the count array, output is set to the same)
-        layers[layers.Length - 1] = new Layer(neuronCountsInEachLayer[neuronCountsInEachLayer.Length - 1], neuronCountsInEachLayer[neuronCountsInEachLayer.Length - 1], layers[layers.Length - 2], random);
+        layers[layers.Length - 1] = new Layer(neuronCountsInEachLayer[neuronCountsInEachLayer.Length - 1], neuronCountsInEachLayer[neuronCountsInEachLayer.Length - 1], layers[layers.Length - 2], Layer.LayerType.OUTPUT, random);
     }
 
     void SetNeuronCounts(int inputNeuronsCount, int[] hiddenLayersNeuronCounts, int outputNeuronsCount)
@@ -97,21 +97,33 @@ public class NeuralNet : MonoBehaviour
         {
             layers[i].UpdateWeights();
         }
+
+        // Calculate the total error (c) on the output layer
+        
     }
 }
 
 public class Layer
 {
+    public enum LayerType { 
+        INPUT,
+        HIDDEN,
+        OUTPUT
+    }
+
     public Layer prevLayer;
     public Neuron[] neurons;
     public OutputData[] outputs;
+    public float totalError =0;
+    LayerType layerType;
     Random random;
 
-    public Layer(int inputCount, int outputCount, Random _random)
+    public Layer(int inputCount, int outputCount, LayerType type, Random _random)
     {
         neurons = new Neuron[inputCount];
         outputs = new OutputData[outputCount];
         random = _random;
+        layerType = type;
 
         for (int i = 0; i < neurons.Length; i++)
         {
@@ -119,7 +131,7 @@ public class Layer
         }
     }
 
-    public Layer(int inputCount, int outputCount, Layer _prevLayer, Random _random) : this(inputCount, outputCount, _random)
+    public Layer(int inputCount, int outputCount, Layer _prevLayer, LayerType type, Random _random) : this(inputCount, outputCount, type, _random)
     {
         prevLayer = _prevLayer;
     }
@@ -128,6 +140,9 @@ public class Layer
     {
         SetInputValues(inputs);
 
+        if (layerType == LayerType.OUTPUT)
+            return neurons.Select(n => n.value).ToArray();
+
         for (int i = 0; i < outputs.Length; i++)
         {
             OutputData output = outputs[i];
@@ -135,11 +150,11 @@ public class Layer
             {
                 Neuron neuron = neurons[j];
                 // Use the output index to get the connection between the current neuron and the output values
-                Connection connection = neuron.connections[i];
+                Connection connection = neuron.forwardConnections[i];
                 // Apply the weighted value to the next output value
                 output.value += neuron.value * connection.weight;
                 // Update the connection in the array
-                neuron.connections[i] = connection;
+                neuron.forwardConnections[i] = connection;
             }
             // Use the transfer function applying the bias as an activation threshold
             output.value = Sigmoid(output.value + output.bias);
@@ -163,10 +178,39 @@ public class Layer
 
     public float[] BackPropagateLayer(float[] expected)
     {
-        //int totalConnections = neurons.Where(n => n.connections != null).Count();
+        //https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/
 
-        //if (totalConnections <= 0)
-        //    return expected;
+        // Calculate the error
+        totalError = 0;
+        for (int i = 0; i < outputs.Length; i++)
+        {
+            OutputData output = outputs[i];
+
+            // Set the desired value to its expected value
+            output.desiredValue = expected[i];
+
+            // Calculate how changes in the output value change the error, 1/2(a-y)^2 || 2(a-y)?
+            totalError += (float)Math.Pow(output.value - output.desiredValue, 2) * 0.5f;
+
+            // Calculate the partial derivative of error with respect to output value
+            output.error = output.value - output.desiredValue;
+
+            float val = SigmoidDerivative(output.value);
+
+            //for (int j = 0; j < ne; j++)
+            //{
+
+            //}
+
+            outputs[i] = output;
+        }
+
+        for (int i = 0; i < outputs.Length; i++)
+        {
+            OutputData output = outputs[i];
+
+            outputs[i] = output;
+        }
 
         for (int i = 0; i < outputs.Length; i++)
         {
@@ -174,9 +218,6 @@ public class Layer
 
             // Set the desired value to its expected value
             output.desiredValue = expected[i];
-            
-            // Calculate how changes in the output value change the error, 2(a-y)
-            output.error = 2 * (output.value - output.desiredValue);
 
             // honestly cant remember where i got this from
             output.biasNudge += SigmoidDerivative(output.value) * output.error;
@@ -184,14 +225,14 @@ public class Layer
             for (int j = 0; j < neurons.Length; j++)
             {
                 Neuron neuron = neurons[i];
-                Connection connection = neuron.connections[i];
+                Connection connection = neuron.forwardConnections[i];
 
                 // How should 'w' change for 'a' to change in such a way that 'error' decreases
                 // 'a' might actually be the output value in this case, i dont rememner
                 connection.weightNudge = neuron.value * output.error;
                 
                 // Update the connections
-                neuron.connections[i] = connection;
+                neuron.forwardConnections[i] = connection;
             }
             outputs[i] = output;
         }
@@ -205,11 +246,13 @@ public class Layer
         for (int i = 0; i < neurons.Length; i++)
         {
             Neuron currentNeuron = neurons[i];
-            currentNeuron.connections = new Connection[otherNeurons.Length];
+            currentNeuron.forwardConnections = new Connection[otherNeurons.Length];
             for (int j = 0; j < otherNeurons.Length; j++)
             {
                 Neuron otherNeuron = otherNeurons[j];
-                currentNeuron.ConnectNeuron(otherNeuron, j, random);
+                float weight = random == null ? 0.0f : (float)random.NextDouble() - 0.5f;
+                currentNeuron.ForwardsConnectNeuron(otherNeuron, j, weight);
+                otherNeuron.BackwardsConnectNeuron(currentNeuron, i, weight);
             }
         }
     }
@@ -236,10 +279,10 @@ public class Layer
             for (int j = 0; j < neurons.Length; j++)
             {
                 Neuron neuron = neurons[j];
-                Connection connection = neuron.connections[i];
+                Connection connection = neuron.forwardConnections[i];
                 connection.weight += connection.weightNudge;
                 connection.weightNudge = 0;
-                neuron.connections[i] = connection;
+                neuron.forwardConnections[i] = connection;
             }
             outputs[i] = output;
         }
@@ -249,12 +292,18 @@ public class Layer
 public class Neuron
 {
     public float value;
-    public Connection[] connections;
+    public Connection[] forwardConnections;
+    public Connection[] backConnections;
 
-    // Creates a connection to the other neuron, if random is null the weight will be 0
-    public void ConnectNeuron(Neuron otherNeuron, int index, Random random)
+    // Creates a connection to the other neuron, if random is null the weight will be 0, returns the wait used in the connection
+    public void ForwardsConnectNeuron(Neuron otherNeuron, int index, float weight)
     {
-        connections[index] = new Connection(this, otherNeuron, random == null ? 0.0f : (float)random.NextDouble() - 0.5f);
+        forwardConnections[index] = new Connection(this, otherNeuron, weight);
+    }
+    
+    public void BackwardsConnectNeuron(Neuron otherNeuron, int index, float weight)
+    {
+        backConnections[index] = new Connection(this, otherNeuron, weight);
     }
 }
 
