@@ -12,15 +12,26 @@ public class Tester : MonoBehaviour
 
     private static void NeuralTest()
     {
-        NooralNet neuralNetwork = new NooralNet(3, new int[] { 4 }, 1);
+        NooralNet neuralNetwork = new NooralNet(1, new int[] { 10 }, 1);
 
         Debug.Log($"Layers: {neuralNetwork.layers.Length}");
-        neuralNetwork.FeedForward(new float[] { 0, 0, 0 });
+        //neuralNetwork.FeedForward(new float[] { 0, 0, 0 });
+
+        for (int i = 0; i < 1000; i++)
+        {
+            neuralNetwork.FeedForward(new float[] { 0 });
+            neuralNetwork.BackPropagate(new float[] { 1 });
+            neuralNetwork.FeedForward(new float[] { 1 });
+            neuralNetwork.BackPropagate(new float[] { 0 });
+        }
+
+        Debug.Log(neuralNetwork.FeedForward(new float[] { 0 })[0]);
+        Debug.Log(neuralNetwork.FeedForward(new float[] { 1 })[0]);
 
         //for (int i = 0; i < 5000; i++)
         //{
         //    neuralNetwork.FeedForward(new float[] { 0, 0, 0 });
-        //    neuralNetwork.BackPropagate(new float[] { 1 });
+        //    neuralNetwork.BackPropagate(new float[] { 0 });
         //    neuralNetwork.FeedForward(new float[] { 0, 0, 1 });
         //    neuralNetwork.BackPropagate(new float[] { 1 });
         //    neuralNetwork.FeedForward(new float[] { 0, 1, 0 });
