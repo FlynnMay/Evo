@@ -90,7 +90,7 @@ namespace Assets.Scripts.Neural
 
             for (int i = 0; i < neurons.Length; i++)
             {
-                neurons[i] = new Neuron();
+                neurons[i] = new Neuron((float)random.NextDouble() - 0.5f);
             }
         }
 
@@ -192,8 +192,8 @@ namespace Assets.Scripts.Neural
                     errorWRTPrevOutput += prevNeuron.error * connection.weight;
                 }
                 neuron.error = errorWRTPrevOutput * SigmoidDerivative(neuron.value);
-                //neuron.bias += neuron.error * LearningRate;
-                //neuron.bias *= 1 - WeightDecay;
+                neuron.bias += neuron.error * LearningRate;
+                neuron.bias *= 1 - WeightDecay;
             }
 
             if (layerType == LayerType.INPUT)
@@ -214,12 +214,12 @@ namespace Assets.Scripts.Neural
             for (int i = 0; i < neurons.Length; i++)
             {
                 Neuron neuron = neurons[i];
-                for (int j = 0; j < nextNeurons.Length; j++)
+                for (int j = 0; j < neuron.connections.Length; j++)
                 {
-                    Neuron nextNeuron = nextNeurons[j];
                     Connection connection = neuron.connections[j];
                     connection.weightNudge = neuron.error * neuron.input;
                     connection.weight -= LearningRate * connection.weightNudge;
+                    //connection.weight *= 1 - WeightDecay;
                     neuron.connections[j] = connection;
                 }
             }
@@ -252,6 +252,12 @@ namespace Assets.Scripts.Neural
         public float error;
         public float bias;
         public Connection[] connections;
+
+        public Neuron(float _bias)
+        {
+            bias = _bias;
+        }
+
         public void ForwardConnect(Neuron otherNeuron, int index, float weight)
         {
             bias = 1;
