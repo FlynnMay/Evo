@@ -27,7 +27,7 @@ public class Brain : MonoBehaviour
         if (inputs.Length != inputCount)
         {
             Debug.LogError("[Brain] Inputs length needs to equal inputCount");
-            return new float[0];
+            return null;
         }
         return net.FeedForward(inputs);
     }

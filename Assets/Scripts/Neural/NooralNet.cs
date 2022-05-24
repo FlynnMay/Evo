@@ -64,9 +64,13 @@ namespace Assets.Scripts.Neural
             Layer outputLayer = layers[layers.Length - 1];
             outputLayer.OutputBackProp(expected);
             outputLayer.leftLayer.RecursiveHiddenBackProp();
-            //layers[0].CalculateWeight();            
         }
 
+        public override string ToString()
+        {
+            string output = $"[NeuralNetwork] Layers: {layers.Length}.";
+            return output;
+        }
     }
 
     public class Layer

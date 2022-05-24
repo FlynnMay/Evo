@@ -8,7 +8,7 @@ using Random = System.Random;
 public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
 {
     public int genomeSize = 1;
-    public EvolutionAgent[] agents;
+    public EvolutionAgent[] agents;          
 
     // Used to apply custom calculations to the fitness result, the returned value will be clamped between 0 and 1
     public Func<Genome, float> CustomFitnessFunction { get; set; }
@@ -35,7 +35,7 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     {
         random = new Random();
         agents = agents.Length <= 0 ? transform.GetComponentsInChildren<EvolutionAgent>() : agents;
-        CustomFitnessFunction += (genome) =>
+        CustomFitnessFunction = (genome) =>
         {
             int target = 100;
             int[] genes = genome.Genes.Select(g => g.GetEvolutionValue<int>()).ToArray();
@@ -45,15 +45,13 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
             return 1 - error / target;
         };
 
-        CustomRandomFunction += () => random.Next(0, 100);
+        CustomRandomFunction = () => random.Next(0, 100);
         Array.ForEach(agents, a => a.Init(genomeSize, random, this));
 
         List<Genome> genomes = agents.Select(a => a.DNA).ToList();
 
         geneticAlgorithm = new GeneticAlgorithm(genomes, genomeSize, random, this, mutationRate, eliteCount);
-        geneticAlgorithm.Population = agents.Select(a => a.DNA).ToList();
 
-        Debug.Log(geneticAlgorithm.Population.Count);
         StartCoroutine(Evolve());
     }
 
