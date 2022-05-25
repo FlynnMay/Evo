@@ -1,0 +1,22 @@
+Network FeedForward:
+
+inputs = new float array
+loop each layer
+	outputs = layer.feedforward(inputs)
+	inputs = outputs
+----------------------------------------	
+Layer FeedForward
+
+outputs = new float array
+loop each neuron
+	outputs.add(neuron.CalculateOutput(inputs))
+return outputs
+----------------------------------------
+Neuron CalculateOutput
+
+neuron.inputs = inputs
+total = 0
+loop each input
+	total += input * weight
+return sigmoid(total + bias)
+----------------------------------------

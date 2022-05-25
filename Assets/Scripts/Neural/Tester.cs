@@ -7,33 +7,128 @@ using Assets.Scripts.Neural;
 public class Tester : MonoBehaviour
 {
     System.Random random;
+    public GameObject neuralUI;
+    public GameObject layerPrefab;
+    public LineRenderer lineRendererPrefab;
+    public QuickNeuron neuronPrefab;
+    public QuickNeuron weightPrefab;
+    public QuickNeuron epoch;
+    [Range(0, 2)]
+    public float timeBetweenFeeding = 0.1f;
 
     public EvolutionValueType EvoType { get; set; } = EvolutionValueType.EvoInt;
 
+    Dictionary<Layer, GameObject> layerObjectPairs = new Dictionary<Layer, GameObject>();
+    Dictionary<Neuron, QuickNeuron> neuronObjectPairs = new Dictionary<Neuron, QuickNeuron>();
+    Dictionary<Neuron, List<QuickNeuron>> weightObjectPairs = new Dictionary<Neuron, List<QuickNeuron>>();
+
     void Start()
     {
-        //Debug.Log("wizard");
-        NeuralTest();
-        //random = new System.Random();
+        StartCoroutine(NeuralTest());
     }
 
-    private static void NeuralTest()
+    void Update()
     {
-        NooralNet neuralNetwork = new NooralNet(2, new int[0], 1);
+        foreach (var neuronObj in neuronObjectPairs)
+        {
+            Neuron neuron = neuronObj.Key;
+            QuickNeuron obj = neuronObj.Value;
 
-        Debug.Log($"Layers: {neuralNetwork.layers.Length}");
+            obj.textMesh.text = neuron.input.ToString();
+
+            if (neuron.connections == null)
+                continue;
+            int i = 0;
+            foreach (var connection in neuron.connections)
+            {
+                weightObjectPairs[neuron][i++].textMesh.text = connection.weight.ToString();
+            }
+        }
+    }
+
+    private IEnumerator NeuralTest()
+    {
+        NooralNet neuralNetwork = new NooralNet(2, new int[] { }, 1);
+
+        Layer[] layers = neuralNetwork.layers;
+
+        for (int i = 0; i < layers.Length; i++)
+        {
+            Layer layer = layers[i];
+            GameObject obj = Instantiate(layerPrefab, neuralUI.transform);
+            layerObjectPairs.Add(layer, obj);
+            Neuron[] neurons = layer.neurons;
+            for (int j = 0; j < neurons.Length; j++)
+            {
+                Neuron neuron = neurons[j];
+                QuickNeuron neuronObj = Instantiate(neuronPrefab, obj.transform);
+                neuronObjectPairs.Add(neuron, neuronObj);
+            }
+        }
+
+        yield return new WaitForEndOfFrame();
+
+        foreach (var neuronObj in neuronObjectPairs)
+        {
+            Neuron neuron = neuronObj.Key;
+            QuickNeuron obj = neuronObj.Value;
+
+            obj.textMesh.text = neuron.value.ToString();
+
+            if (neuron.connections == null)
+                continue;
+
+            weightObjectPairs.Add(neuron, new List<QuickNeuron>());
+            foreach (var connection in neuron.connections)
+            {
+                LineRenderer lineRenderer = Instantiate(lineRendererPrefab, obj.transform);
+
+                QuickNeuron otherObj = neuronObjectPairs[connection.right];
+
+                Vector3 objPos = obj.transform.position;
+                Vector3 otherPos = otherObj.transform.position;
+
+                QuickNeuron weight = Instantiate(weightPrefab);
+                weight.transform.position = (objPos + otherPos) / 2;
+                weight.transform.SetParent(obj.transform);
+
+                weightObjectPairs[neuron].Add(weight);
+
+                lineRenderer.positionCount = 2;
+                lineRenderer.SetPosition(lineRenderer.positionCount - 2, objPos);
+                lineRenderer.SetPosition(lineRenderer.positionCount - 1, otherPos);
+            }
+        }
+
+        Debug.LogWarning($"New Network");
         //neuralNetwork.FeedForward(new float[] { 0, 0, 0 });
 
-        for (int i = 0; i < 30000; i++)
+        for (int i = 0; i < 1000; i++)
         {
+            epoch.textMesh.text = (i + 1).ToString();
             neuralNetwork.FeedForward(new float[] { 0, 0 });
             neuralNetwork.BackPropagate(new float[] { 0 });
+
+            if (timeBetweenFeeding != 0)
+                yield return new WaitForSeconds(timeBetweenFeeding);
+
             neuralNetwork.FeedForward(new float[] { 1, 1 });
             neuralNetwork.BackPropagate(new float[] { 1 });
+
+            if (timeBetweenFeeding != 0)
+                yield return new WaitForSeconds(timeBetweenFeeding);
+
             neuralNetwork.FeedForward(new float[] { 0, 1 });
             neuralNetwork.BackPropagate(new float[] { 1 });
+
+            if (timeBetweenFeeding != 0)
+                yield return new WaitForSeconds(timeBetweenFeeding);
+
             neuralNetwork.FeedForward(new float[] { 1, 0 });
             neuralNetwork.BackPropagate(new float[] { 1 });
+
+            if (timeBetweenFeeding != 0)
+                yield return new WaitForSeconds(timeBetweenFeeding);
         }
 
         Debug.Log(neuralNetwork.FeedForward(new float[] { 0, 0 })[0]);
@@ -126,10 +221,4 @@ public class Tester : MonoBehaviour
         //Debug.Log(net.FeedForward(new float[] { 1, 1, 0 })[0]);
         //Debug.Log(net.FeedForward(new float[] { 1, 1, 1 })[0]);
     }
-
-    void Update()
-    {
-
-    }
-
 }

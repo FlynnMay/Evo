@@ -80,6 +80,8 @@ namespace Assets.Scripts.Neural
         public Layer leftLayer;
         public Layer rightLayer;
         Random random;
+        float bias;
+
         public float LearningRate { get; set; } = 1.0f;
         public float WeightDecay { get; set; } = 0.001f;
 
@@ -91,6 +93,8 @@ namespace Assets.Scripts.Neural
             random = _random;
 
             neurons = new Neuron[_inputCount];
+            bias = (float)random.NextDouble() - 0.5f;
+            bias = (float)random.NextDouble() - 0.5f;
 
             for (int i = 0; i < neurons.Length; i++)
             {
@@ -130,26 +134,44 @@ namespace Assets.Scripts.Neural
             if (layerType == LayerType.OUTPUT)
                 return neurons.Select(n => n.value).ToArray();
 
-            Neuron[] nextNeurons = rightLayer.neurons;
-            inputs = new float[nextNeurons.Length];
-            for (int i = 0; i < nextNeurons.Length; i++)
+            #region backup code
+            //Neuron[] nextNeurons = rightLayer.neurons;
+            //inputs = new float[nextNeurons.Length];
+            //for (int i = 0; i < nextNeurons.Length; i++)
+            //{
+            //    for (int j = 0; j < neurons.Length; j++)
+            //    {
+            //        Neuron neuron = neurons[j];
+            //        // Use the output index to get the connection between the current neuron and the output values
+            //        Connection connection = neuron.connections[i];
+            //        // Apply the weighted value to the next output value
+            //        inputs[i] += neuron.value * connection.weight;
+            //        // Update the connection in the array
+            //        neuron.connections[i] = connection;
+            //    }
+            //    // Use the transfer function applying the bias as an activation threshold
+            //    Neuron nextNeuron = nextNeurons[i];
+            //    inputs[i] = Sigmoid(inputs[i] + nextNeuron.bias);
+            //}
+            #endregion
+
+            float[] outputs = new float[rightLayer.neurons.Length];
+            for (int i = 0; i < neurons.Length; i++)
             {
-                for (int j = 0; j < neurons.Length; j++)
+                Neuron neuron = neurons[i];
+                for (int j = 0; j < neuron.connections.Length; j++)
                 {
-                    Neuron neuron = neurons[j];
-                    // Use the output index to get the connection between the current neuron and the output values
-                    Connection connection = neuron.connections[i];
-                    // Apply the weighted value to the next output value
-                    inputs[i] += neuron.value * connection.weight;
-                    // Update the connection in the array
-                    neuron.connections[i] = connection;
+                    Connection connection = neuron.connections[j];
+                    outputs[j] += neuron.value * connection.weight;
                 }
-                // Use the transfer function applying the bias as an activation threshold
-                Neuron nextNeuron = nextNeurons[i];
-                inputs[i] = Sigmoid(inputs[i] + nextNeuron.bias);
             }
 
-            return rightLayer.RecursiveFeed(inputs);
+            for (int i = 0; i < outputs.Length; i++)
+            {
+                outputs[i] = Sigmoid(outputs[i] + bias);
+            }
+
+            return rightLayer.RecursiveFeed(outputs);
         }
 
         void SetInputValues(float[] inputs)
@@ -162,25 +184,25 @@ namespace Assets.Scripts.Neural
         }
         public void OutputBackProp(float[] expected)
         {
-            float totalError = 0;
+            //float totalError = 0;
 
             for (int i = 0; i < neurons.Length; i++)
             {
                 Neuron neuron = neurons[i];
 
                 // Calculate how changes in the output value change the error, 1/2(a-y)^2 || 2(a-y)?
-                totalError += (float)Math.Pow(neuron.value - expected[i], 2) * 0.5f;
+                //totalError += (float)Math.Pow(neuron.value - expected[i], 2) * 0.5f;
 
                 // Calculate the derivative of the logistics function
                 float sigDerivative = SigmoidDerivative(neuron.value);
 
                 // Calculate the partial derivative of error with respect to output value
                 neuron.error = -(expected[i] - neuron.value) * sigDerivative;
-                //neuron.bias += neuron.error * LearningRate;
-                //neuron.bias *= 1 - WeightDecay;
+                //bias += neuron.error * LearningRate;
+                //bias *= 1 - WeightDecay;
             }
         }
-        
+
         public void RecursiveHiddenBackProp()
         {
             // We use the 'right layer' as it is actually the previous layer when going backwards
@@ -196,8 +218,8 @@ namespace Assets.Scripts.Neural
                     errorWRTPrevOutput += prevNeuron.error * connection.weight;
                 }
                 neuron.error = errorWRTPrevOutput * SigmoidDerivative(neuron.value);
-                neuron.bias += neuron.error * LearningRate;
-                neuron.bias *= 1 - WeightDecay;
+                //bias += neuron.error * LearningRate;
+                //bias *= 1 - WeightDecay;
             }
 
             if (layerType == LayerType.INPUT)
@@ -214,7 +236,6 @@ namespace Assets.Scripts.Neural
             if (layerType == LayerType.OUTPUT)
                 return;
 
-            Neuron[] nextNeurons = rightLayer.neurons;
             for (int i = 0; i < neurons.Length; i++)
             {
                 Neuron neuron = neurons[i];
@@ -223,7 +244,7 @@ namespace Assets.Scripts.Neural
                     Connection connection = neuron.connections[j];
                     connection.weightNudge = neuron.error * neuron.input;
                     connection.weight -= LearningRate * connection.weightNudge;
-                    //connection.weight *= 1 - WeightDecay;
+                    connection.weight *= 1 - WeightDecay;
                     neuron.connections[j] = connection;
                 }
             }
@@ -237,6 +258,7 @@ namespace Assets.Scripts.Neural
 
         static float SigmoidDerivative(float x)
         {
+            x = Sigmoid(x);
             return x * (1 - x);
         }
 
@@ -264,7 +286,6 @@ namespace Assets.Scripts.Neural
 
         public void ForwardConnect(Neuron otherNeuron, int index, float weight)
         {
-            bias = 1;
             connections[index] = new Connection(this, otherNeuron, weight);
         }
     }

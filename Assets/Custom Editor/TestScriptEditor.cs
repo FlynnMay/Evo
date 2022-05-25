@@ -5,19 +5,20 @@ using UnityEngine;
 using UnityEditor;
 using System;
 
-[CustomEditor(typeof(MonoBehaviour), true)]
+[CustomEditor(typeof(Tester), true)]
 public class TestEditor : Editor
 {
     public override void OnInspectorGUI()
     {
-        DrawPropertiesExcluding(serializedObject, "m_Script");
+        DrawDefaultInspector();
+        //DrawPropertiesExcluding(serializedObject, "m_Script");
 
-        if (GUILayout.Button("stuff"))
+        if (GUILayout.Button("Neural Test"))
         {
             Type type = target.GetType();
-            type.GetMethod("Start", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(target, null);
+            type.GetMethod("NeuralTest", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(target, null);
         }
 
-        EditorGUILayout.HelpBox("Help Box", MessageType.Info);
+        EditorGUILayout.HelpBox("Use this to test the Neural Net with out launching the app!", MessageType.Info);
     }
 }
