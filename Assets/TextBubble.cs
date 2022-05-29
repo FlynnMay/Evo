@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class QuickNeuron : MonoBehaviour
+public class TextBubble : MonoBehaviour
 {
     public TextMeshProUGUI textMesh;
 }

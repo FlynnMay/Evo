@@ -10,17 +10,18 @@ public class Tester : MonoBehaviour
     public GameObject neuralUI;
     public GameObject layerPrefab;
     public LineRenderer lineRendererPrefab;
-    public QuickNeuron neuronPrefab;
-    public QuickNeuron weightPrefab;
-    public QuickNeuron epoch;
+    public TextBubble neuronPrefab;
+    public TextBubble weightPrefab;
+    public TextBubble epoch;
+    public TextBubble error;
     [Range(0, 2)]
     public float timeBetweenFeeding = 0.1f;
-
+    NooralNet neuralNetwork;
     public EvolutionValueType EvoType { get; set; } = EvolutionValueType.EvoInt;
 
     Dictionary<Layer, GameObject> layerObjectPairs = new Dictionary<Layer, GameObject>();
-    Dictionary<Neuron, QuickNeuron> neuronObjectPairs = new Dictionary<Neuron, QuickNeuron>();
-    Dictionary<Neuron, List<QuickNeuron>> weightObjectPairs = new Dictionary<Neuron, List<QuickNeuron>>();
+    Dictionary<Neuron, TextBubble> neuronObjectPairs = new Dictionary<Neuron, TextBubble>();
+    Dictionary<Neuron, List<TextBubble>> weightObjectPairs = new Dictionary<Neuron, List<TextBubble>>();
 
     void Start()
     {
@@ -29,10 +30,11 @@ public class Tester : MonoBehaviour
 
     void Update()
     {
+        error.textMesh.text = neuralNetwork.GetTotalError().ToString();
         foreach (var neuronObj in neuronObjectPairs)
         {
             Neuron neuron = neuronObj.Key;
-            QuickNeuron obj = neuronObj.Value;
+            TextBubble obj = neuronObj.Value;
 
             obj.textMesh.text = neuron.input.ToString();
 
@@ -48,7 +50,7 @@ public class Tester : MonoBehaviour
 
     private IEnumerator NeuralTest()
     {
-        NooralNet neuralNetwork = new NooralNet(2, new int[] { }, 1);
+        neuralNetwork = new NooralNet(2, new int[] { }, 1);
 
         Layer[] layers = neuralNetwork.layers;
 
@@ -61,7 +63,7 @@ public class Tester : MonoBehaviour
             for (int j = 0; j < neurons.Length; j++)
             {
                 Neuron neuron = neurons[j];
-                QuickNeuron neuronObj = Instantiate(neuronPrefab, obj.transform);
+                TextBubble neuronObj = Instantiate(neuronPrefab, obj.transform);
                 neuronObjectPairs.Add(neuron, neuronObj);
             }
         }
@@ -71,24 +73,24 @@ public class Tester : MonoBehaviour
         foreach (var neuronObj in neuronObjectPairs)
         {
             Neuron neuron = neuronObj.Key;
-            QuickNeuron obj = neuronObj.Value;
+            TextBubble obj = neuronObj.Value;
 
             obj.textMesh.text = neuron.value.ToString();
 
             if (neuron.connections == null)
                 continue;
 
-            weightObjectPairs.Add(neuron, new List<QuickNeuron>());
+            weightObjectPairs.Add(neuron, new List<TextBubble>());
             foreach (var connection in neuron.connections)
             {
                 LineRenderer lineRenderer = Instantiate(lineRendererPrefab, obj.transform);
 
-                QuickNeuron otherObj = neuronObjectPairs[connection.right];
+                TextBubble otherObj = neuronObjectPairs[connection.right];
 
                 Vector3 objPos = obj.transform.position;
                 Vector3 otherPos = otherObj.transform.position;
 
-                QuickNeuron weight = Instantiate(weightPrefab);
+                TextBubble weight = Instantiate(weightPrefab);
                 weight.transform.position = (objPos + otherPos) / 2;
                 weight.transform.SetParent(obj.transform);
 

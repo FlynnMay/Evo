@@ -66,6 +66,12 @@ namespace Assets.Scripts.Neural
             outputLayer.leftLayer.RecursiveHiddenBackProp();
         }
 
+        public float GetTotalError()
+        {
+            Layer outputLayer = layers[layers.Length - 1];
+            return outputLayer.totalError;
+        }
+
         public override string ToString()
         {
             string output = $"[NeuralNetwork] Layers: {layers.Length}.";
@@ -79,6 +85,7 @@ namespace Assets.Scripts.Neural
         public Neuron[] neurons;
         public Layer leftLayer;
         public Layer rightLayer;
+        public float totalError;
         Random random;
         float bias;
 
@@ -184,14 +191,14 @@ namespace Assets.Scripts.Neural
         }
         public void OutputBackProp(float[] expected)
         {
-            //float totalError = 0;
+            totalError = 0;
 
             for (int i = 0; i < neurons.Length; i++)
             {
                 Neuron neuron = neurons[i];
 
                 // Calculate how changes in the output value change the error, 1/2(a-y)^2 || 2(a-y)?
-                //totalError += (float)Math.Pow(neuron.value - expected[i], 2) * 0.5f;
+                totalError += (float)Math.Pow(neuron.value - expected[i], 2) * 0.5f;
 
                 // Calculate the derivative of the logistics function
                 float sigDerivative = SigmoidDerivative(neuron.value);
