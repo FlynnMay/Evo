@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
+using Random = System.Random;
 
 namespace Assets.Scripts.Neural
 {
@@ -100,8 +102,7 @@ namespace Assets.Scripts.Neural
             random = _random;
 
             neurons = new Neuron[_inputCount];
-            bias = (float)random.NextDouble() - 0.5f;
-            bias = (float)random.NextDouble() - 0.5f;
+            bias = (float)random.NextDouble();
 
             for (int i = 0; i < neurons.Length; i++)
             {
@@ -129,7 +130,7 @@ namespace Assets.Scripts.Neural
                 for (int j = 0; j < otherNeurons.Length; j++)
                 {
                     Neuron otherNeuron = otherNeurons[j];
-                    neuron.ForwardConnect(otherNeuron, j, (float)random.NextDouble() - 0.5f);
+                    neuron.ForwardConnect(otherNeuron, j, (float)random.NextDouble());
                 }
             }
         }
@@ -175,7 +176,7 @@ namespace Assets.Scripts.Neural
 
             for (int i = 0; i < outputs.Length; i++)
             {
-                outputs[i] = Sigmoid(outputs[i] + bias);
+                outputs[i] = Sigmoid(outputs[i] /*+ bias*/);
             }
 
             return rightLayer.RecursiveFeed(outputs);
@@ -252,6 +253,7 @@ namespace Assets.Scripts.Neural
                     connection.weightNudge = neuron.error * neuron.input;
                     connection.weight -= LearningRate * connection.weightNudge;
                     connection.weight *= 1 - WeightDecay;
+                    connection.weight = Mathf.Round(Mathf.Clamp(connection.weight, 0, 1) * 100) / 100;
                     neuron.connections[j] = connection;
                 }
             }
@@ -260,7 +262,7 @@ namespace Assets.Scripts.Neural
 
         static float Sigmoid(float x)
         {
-            return 1.0f / (1.0f + (float)Math.Exp(-x));
+            return 1.0f / (1.0f + (float)Mathf.Exp(-x));
         }
 
         static float SigmoidDerivative(float x)

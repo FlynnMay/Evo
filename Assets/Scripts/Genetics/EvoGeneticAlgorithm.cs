@@ -51,6 +51,7 @@ public class GeneticAlgorithm
 
         CalculateFitness();
         Population = Population.OrderBy(x => x.Fitness).ToList();
+        Population.Reverse();
         List<Genome> newPopulation = new List<Genome>();
 
         for (int i = 0; i < Population.Count; i++)
@@ -60,7 +61,7 @@ public class GeneticAlgorithm
                 newPopulation.Add(Population[i]);
                 continue;
             }
-
+            
             Genome parentA = ChooseParent();
             Genome parentB = ChooseParent();
 

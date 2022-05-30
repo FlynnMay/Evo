@@ -8,7 +8,7 @@ using Random = System.Random;
 public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
 {
     public int genomeSize = 1;
-    public EvolutionAgent[] agents;          
+    public EvolutionAgent[] agents;
 
     // Used to apply custom calculations to the fitness result, the returned value will be clamped between 0 and 1
     public Func<Genome, float> CustomFitnessFunction { get; set; }
@@ -16,12 +16,17 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     // Used to generate custom random values for genetic algorithm
     public Func<object> CustomRandomFunction { get; set; }
 
+    Dictionary<Genome, EvolutionAgent> genomeAgentPair = new Dictionary<Genome, EvolutionAgent>();
+
     [SerializeField]
     [Tooltip("Determines the chance of a agent to be mutated")]
     float mutationRate = 0.01f;
     [SerializeField]
     [Tooltip("Determines the number of surperior agents which live on to the next generation")]
     int eliteCount = 2;
+    [SerializeField]
+    [Tooltip("If true, the group will start evolving on Start, and stop once it has found the best soloution")]
+    bool evolveUntilResolved = false;
 
     [SerializeField]
     EvolutionValueType evolutionType;
@@ -31,36 +36,51 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     Random random;
     public EvolutionValueType EvoType { get { return evolutionType; } set { evolutionType = value; } }
 
-    void Start()
+    IEnumerator Start()
     {
+        yield return new WaitForEndOfFrame();
+
         random = new Random();
         agents = agents.Length <= 0 ? transform.GetComponentsInChildren<EvolutionAgent>() : agents;
-        CustomFitnessFunction = (genome) =>
+        //CustomFitnessFunction = (genome) =>
+        //{
+        //    int target = 100;
+        //    int[] genes = genome.Genes.Select(g => g.GetEvolutionValue<int>()).ToArray();
+        //    float sum = genes.Sum();
+        //    float error = Mathf.Abs(sum - target);
+
+        //    return 1 - error / target;
+        //};
+
+        //CustomRandomFunction = () => random.Next(0, 100);
+
+        Array.ForEach(agents, a =>
         {
-            int target = 100;
-            int[] genes = genome.Genes.Select(g => g.GetEvolutionValue<int>()).ToArray();
-            float sum = genes.Sum();
-            float error = Mathf.Abs(sum - target);
-
-            return 1 - error / target;
-        };
-
-        CustomRandomFunction = () => random.Next(0, 100);
-        Array.ForEach(agents, a => a.Init(genomeSize, random, this));
+            a.Init(genomeSize, random, this);
+            genomeAgentPair.Add(a.DNA, a);
+        });
 
         List<Genome> genomes = agents.Select(a => a.DNA).ToList();
 
         geneticAlgorithm = new GeneticAlgorithm(genomes, genomeSize, random, this, mutationRate, eliteCount);
 
-        StartCoroutine(Evolve());
+        if (evolveUntilResolved)
+            StartCoroutine(Evolve());
     }
 
     public void EvolveGeneration()
     {
+        if (geneticAlgorithm == null)
+            return;
+
         geneticAlgorithm.NewGeneration();
 
+        genomeAgentPair.Clear();
         for (int i = 0; i < agents.Length; i++)
+        {
             agents[i].DNA = geneticAlgorithm.Population[i];
+            genomeAgentPair.Add(geneticAlgorithm.Population[i], agents[i]);
+        }
     }
 
     public IEnumerator Evolve()
@@ -87,4 +107,9 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
 
     public EvolutionValue GetEvolutionRandomValue()
         => new EvolutionValue(CustomRandomFunction(), EvoType);
+
+    public EvolutionAgent GetAgentFromDNA(Genome dna)
+    {
+        return genomeAgentPair.ContainsKey(dna) ? genomeAgentPair[dna] : null;
+    }
 }

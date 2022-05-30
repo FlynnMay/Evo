@@ -103,9 +103,8 @@ public class Tester : MonoBehaviour
         }
 
         Debug.LogWarning($"New Network");
-        //neuralNetwork.FeedForward(new float[] { 0, 0, 0 });
 
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < 10000; i++)
         {
             epoch.textMesh.text = (i + 1).ToString();
             neuralNetwork.FeedForward(new float[] { 0, 0 });
