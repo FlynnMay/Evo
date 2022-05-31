@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 
 public class Genome
@@ -9,12 +10,12 @@ public class Genome
     public IEvolutionInstructions Instructions { get; private set; }
     Random random;
 
-    readonly Dictionary<EvolutionValueType, Type> _Types = new Dictionary<EvolutionValueType, Type>
-    {
-        { EvolutionValueType.EvoInt, typeof(int) },
-        { EvolutionValueType.EvoFloat, typeof(float) },
-        { EvolutionValueType.EvoChar, typeof(char) }
-    };
+    //readonly Dictionary<EvolutionValueType, Type> _Types = new Dictionary<EvolutionValueType, Type>
+    //{
+    //    { EvolutionValueType.EvoInt, typeof(int) },
+    //    { EvolutionValueType.EvoFloat, typeof(float) },
+    //    { EvolutionValueType.EvoChar, typeof(char) }
+    //};
 
     public Genome(int size, Random _random, IEvolutionInstructions instructions)
     {

@@ -19,8 +19,8 @@ public class GroupController : MonoBehaviour
         {
             EvolutionAgent agent = group.GetAgentFromDNA(g);
             Vector3 pos = agent.transform.position;
-            float dist = Vector3.Distance(pos, target.position);
-            return 1 - dist;
+            float dist = Vector2.Distance(new Vector2(pos.x, pos.z), new Vector2(target.position.x, target.position.z));
+            return 1.0f / (dist * dist);
         };
 
         group.CustomRandomFunction = () =>

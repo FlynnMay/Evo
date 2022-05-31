@@ -41,19 +41,8 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
         yield return new WaitForEndOfFrame();
 
         random = new Random();
-        agents = agents.Length <= 0 ? transform.GetComponentsInChildren<EvolutionAgent>() : agents;
-        //CustomFitnessFunction = (genome) =>
-        //{
-        //    int target = 100;
-        //    int[] genes = genome.Genes.Select(g => g.GetEvolutionValue<int>()).ToArray();
-        //    float sum = genes.Sum();
-        //    float error = Mathf.Abs(sum - target);
-
-        //    return 1 - error / target;
-        //};
-
-        //CustomRandomFunction = () => random.Next(0, 100);
-
+        LoadAgents();
+        
         Array.ForEach(agents, a =>
         {
             a.Init(genomeSize, random, this);
@@ -111,5 +100,25 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     public EvolutionAgent GetAgentFromDNA(Genome dna)
     {
         return genomeAgentPair.ContainsKey(dna) ? genomeAgentPair[dna] : null;
+    }
+
+    public void LoadAgents()
+    {
+        agents = GetComponentsInChildren<EvolutionAgent>();
+    }
+    
+    public void ClearAgents()
+    {
+        agents = new EvolutionAgent[0];
+    }
+
+    public int GetGeneration()
+    {
+        return geneticAlgorithm != null ? geneticAlgorithm.Generation : 0;
+    }
+
+    public float GetBestFitness()
+    {
+        return geneticAlgorithm != null ? geneticAlgorithm.BestFitness : 0;
     }
 }
