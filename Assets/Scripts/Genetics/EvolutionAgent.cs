@@ -11,9 +11,12 @@ using UnityEditor;
 [Serializable]
 public class EvolutionAgent : MonoBehaviour
 {
+    [HideInInspector]
     public UnityEvent onResetEvent;
+
     [Header("Debug")]
     [ReadOnly] [SerializeField] bool isAlive = true;
+    [ReadOnly] [SerializeField] DNA DNAType;
 
     //List<float> penalties = new List<float>();
     //List<float> rewards = new List<float>();
@@ -24,9 +27,10 @@ public class EvolutionAgent : MonoBehaviour
     public bool IsKing { get { return DNA.IsKing; } }
     public bool IsAlive { get { return isAlive; } set { isAlive = value; } }
 
-    public void Init(int size, System.Random random, IEvolutionInstructions instructions)
+    public void Init(int size, System.Random random, DNA _DNAType, IEvolutionInstructions instructions)
     {
         DNA = new Genome(size, random, instructions);
+        DNAType = _DNAType;
 
         if (importDNA != null)
         {
@@ -46,10 +50,10 @@ public class EvolutionAgent : MonoBehaviour
 
     public void ExportDNA()
     {
-        Type type = importDNA.GetType();
+        Type type = DNAType.GetType();
         ScriptableObject exportObject = ScriptableObject.CreateInstance(type);
 
-        type.GetMethod("SetGenesFromObject", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(exportObject, new object[]{ DNA.Genes });
+        type.GetMethod("SetGenesFromObject", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(exportObject, new object[] { DNA.Genes });
 
         string path = $"Assets/Agents/{name}.asset";
         AssetDatabase.CreateAsset(exportObject, path);

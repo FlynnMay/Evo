@@ -25,27 +25,23 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     [Tooltip("Determines the number of surperior agents which live on to the next generation")]
     int eliteCount = 2;
 
-    [SerializeField]
-    [Tooltip("If true, the group will start evolving on Start, and stop once it has found the best solution")]
-    bool evolveUntilResolved = false;
-
-    [SerializeField]
-    [Tooltip("If true, will use a default fitness function. \nIt is recommended to use your own custom fitness function!")]
-    bool useDefaultFitnessFunction = false;
-
-    [SerializeField]
-    [Tooltip("If true, will use a random value generator for the agents genomes. \nIt is recommended to use your own custom value generator!")]
-    bool useDefaultRandomValue = false;
     
     [SerializeField]
-    [Tooltip("Used for adding agents to the heirarchy. \nIt is still possible to add agents normally, but this might make things easier")]
+    [Tooltip("Used for adding agents to the heirarchy. \nIt is still possible to add agents manually, but this might make things easier")]
     GameObject agentPrefab;
     
     [SerializeField]
     [Tooltip("Used to allow custom DNA types")]
     DNA agentDNAType;
 
+    //[SerializeField]
+    //[Tooltip("If true, will use a default fitness function. \nIt is recommended to use your own custom fitness function!")]
+    //bool useDefaultFitnessFunction = false;
 
+    //[SerializeField]
+    //[Tooltip("If true, will use a random value generator for the agents genomes. \nIt is recommended to use your own custom value generator!")]
+    //bool useDefaultRandomValue = false;
+    
     GeneticAlgorithm geneticAlgorithm;
 
     Random random;
@@ -53,22 +49,19 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     IEnumerator Start()
     {
         yield return new WaitForEndOfFrame();
-
         random = new Random();
+
         LoadAgents();
-        
-        Array.ForEach(agents, a =>
+
+        foreach (EvolutionAgent agent in agents)
         {
-            a.Init(genomeSize, random, this);
-            genomeAgentPair.Add(a.DNA, a);
-        });
+            agent.Init(genomeSize, random, agentDNAType, this);
+            genomeAgentPair.Add(agent.DNA, agent);
+        }
 
         List<Genome> genomes = agents.Select(a => a.DNA).ToList();
 
         geneticAlgorithm = new GeneticAlgorithm(genomes, genomeSize, random, this, mutationRate, eliteCount);
-
-        if (evolveUntilResolved)
-            StartCoroutine(Evolve());
     }
 
     public void EvolveGeneration()
@@ -84,25 +77,6 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
             agents[i].DNA = geneticAlgorithm.Population[i];
             genomeAgentPair.Add(geneticAlgorithm.Population[i], agents[i]);
         }
-    }
-
-    public IEnumerator Evolve()
-    {
-        while (geneticAlgorithm.BestFitness < 1)
-        {
-            EvolveGeneration();
-            yield return null;
-        }
-
-        string genes = "";
-        int total = 0;
-        for (int i = 0; i < geneticAlgorithm.BestGenes.Length; i++)
-        {
-            int gene = (int)geneticAlgorithm.BestGenes[i];
-            genes += gene + ", ";
-            total += gene;
-        }
-        Debug.Log($"Generation {geneticAlgorithm.Generation}, Genes {genes} Total {total}");
     }
 
     public float EvolutionFitnessFunction(Genome genome)
@@ -136,9 +110,14 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
         return geneticAlgorithm != null ? geneticAlgorithm.BestFitness : 0;
     }
 
-    public float CalculateMutationRate ()
+    public float CalculateMutationRate()
     {
         return 1.0f / agents.Length;
+    }
+    
+    public void AssignMutationRateToCalculatedRate()
+    {
+        mutationRate = CalculateMutationRate();
     }
 
     public void InstantiateNewAgents(int addAgentCount)

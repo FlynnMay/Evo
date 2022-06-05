@@ -4,7 +4,7 @@ What is the minimum that is needed to showcase my system:
 
 	[x] Time scale system
 	[x] Export/Import Genes
-	[ ]	Better Custom Fitness & RandomValues
+	[ ]	Better Custom Fitness & Random Values
 	[ ] Penalties & Rewards
 	[x] Get Best Agent/ Genome
 	[x] Is Elite 

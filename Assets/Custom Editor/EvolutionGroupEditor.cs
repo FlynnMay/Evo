@@ -23,14 +23,22 @@ public class EvolutionGroupEditor : Editor
         GUILayout.Space(5);
         ButtonAddAgents(evolutionGroup);
         AgentAssignmentButtons(evolutionGroup);
+        MutationRateButton(evolutionGroup);
 
         GUILayout.Space(5);
         DestructiveTools(evolutionGroup);
 
         GUILayout.Space(5);
         DebugInfo(evolutionGroup);
-        
+
         serializedObject.ApplyModifiedProperties();
+    }
+
+    private static void MutationRateButton(EvolutionGroup evolutionGroup)
+    {
+        GUIContent calculateMutationRateContent = new GUIContent("Calculate Mutation Rate", "Calculates the mutation rate based on the number of assigned agents.\n(1/AgentCount)");
+        if (GUILayout.Button(calculateMutationRateContent))
+             evolutionGroup.AssignMutationRateToCalculatedRate();
     }
 
     private void DebugInfo(EvolutionGroup evolutionGroup)
