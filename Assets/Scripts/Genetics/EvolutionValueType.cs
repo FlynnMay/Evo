@@ -2,5 +2,9 @@
 {
     EvoFloat,
     EvoInt,
-    EvoChar
+    EvoBool,
+    //EvoChar,
+    //EvoByte,
+    //EvoDecimal,
+    //EvoDouble,
 }

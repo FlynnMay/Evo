@@ -2,20 +2,17 @@
 using System.Reflection;
 using System.Collections.Generic;
 
+[Serializable]
 public class Genome
 {
     public EvolutionValue[] Genes { get; set; }
     public float Fitness { get; set; }
     public EvolutionValueType EvoType { get; private set; }
     public IEvolutionInstructions Instructions { get; private set; }
-    Random random;
+    public bool IsElite { get; set; }
+    public bool IsKing { get; set; }
 
-    //readonly Dictionary<EvolutionValueType, Type> _Types = new Dictionary<EvolutionValueType, Type>
-    //{
-    //    { EvolutionValueType.EvoInt, typeof(int) },
-    //    { EvolutionValueType.EvoFloat, typeof(float) },
-    //    { EvolutionValueType.EvoChar, typeof(char) }
-    //};
+    Random random;
 
     public Genome(int size, Random _random, IEvolutionInstructions instructions)
     {

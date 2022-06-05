@@ -54,10 +54,13 @@ public class GeneticAlgorithm
         Population.Reverse();
         List<Genome> newPopulation = new List<Genome>();
 
+        Population[0].IsKing = true;
+
         for (int i = 0; i < Population.Count; i++)
         {
             if (i < eliteCount)
             {
+                Population[i].IsElite = true;
                 newPopulation.Add(Population[i]);
                 continue;
             }
@@ -66,7 +69,7 @@ public class GeneticAlgorithm
             Genome parentB = ChooseParent();
 
             Genome child = parentA.Crossover(parentB);
-
+            child.IsElite = false;
             child.Mutate(mutationRate);
             newPopulation.Add(child);
         }

@@ -1,22 +1,10 @@
-Network FeedForward:
+MVP - minimum viable product
 
-inputs = new float array
-loop each layer
-	outputs = layer.feedforward(inputs)
-	inputs = outputs
-----------------------------------------	
-Layer FeedForward
+What is the minimum that is needed to showcase my system:
 
-outputs = new float array
-loop each neuron
-	outputs.add(neuron.CalculateOutput(inputs))
-return outputs
-----------------------------------------
-Neuron CalculateOutput
-
-neuron.inputs = inputs
-total = 0
-loop each input
-	total += input * weight
-return sigmoid(total + bias)
-----------------------------------------
+	[x] Time scale system
+	[ ] Export/Import Genes
+	[ ] Penalties & Rewards
+	[x] Get Best Agent/ Genome
+	[x] Is Elite 
+	

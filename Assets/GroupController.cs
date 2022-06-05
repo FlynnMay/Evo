@@ -8,6 +8,7 @@ public class GroupController : MonoBehaviour
 {
     EvolutionGroup group;
     [SerializeField] Transform target;
+    [Range(0f, 100f)][SerializeField] float timeScale = 1.0f;
 
     public float timerMax = 3.0f;
     [ReadOnly][SerializeField] float timer = 0.0f;
@@ -31,7 +32,8 @@ public class GroupController : MonoBehaviour
 
     void Update()
     {
-        timer -= Time.deltaTime;
+        GeneticTime.timeScale = timeScale;
+        timer -= GeneticTime.deltaTime;
         if (group.agents.All(a => !a.IsAlive) || timer <= 0.0f)
         {
             timer = timerMax;

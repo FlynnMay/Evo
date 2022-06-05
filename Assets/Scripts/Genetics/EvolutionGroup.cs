@@ -24,12 +24,27 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     [SerializeField]
     [Tooltip("Determines the number of surperior agents which live on to the next generation")]
     int eliteCount = 2;
+
     [SerializeField]
-    [Tooltip("If true, the group will start evolving on Start, and stop once it has found the best soloution")]
+    [Tooltip("If true, the group will start evolving on Start, and stop once it has found the best solution")]
     bool evolveUntilResolved = false;
 
     [SerializeField]
+    [Tooltip("Defines the type used for the genes in each agent")]
     EvolutionValueType evolutionType;
+
+    [SerializeField]
+    [Tooltip("If true, will use a default fitness function. \nIt is recommended to use your own custom fitness function!")]
+    bool useDefaultFitnessFunction = false;
+
+    [SerializeField]
+    [Tooltip("If true, will use a random value generator for the agents genomes. \nIt is recommended to use your own custom value generator!")]
+    bool useDefaultRandomValue = false;
+    
+    [SerializeField]
+    [Tooltip("Used for adding agents to the heirarchy. \nIt is still possible to add agents normally, but this might make things easier")]
+    GameObject agentPrefab;
+
 
     GeneticAlgorithm geneticAlgorithm;
 
@@ -120,5 +135,18 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     public float GetBestFitness()
     {
         return geneticAlgorithm != null ? geneticAlgorithm.BestFitness : 0;
+    }
+
+    public float CalculateMutationRate ()
+    {
+        return 1.0f / agents.Length;
+    }
+
+    public void InstantiateNewAgents(int addAgentCount)
+    {
+        for (int i = 0; i < addAgentCount; i++)
+        {
+            Instantiate(agentPrefab, transform);
+        }
     }
 }
