@@ -30,10 +30,6 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     bool evolveUntilResolved = false;
 
     [SerializeField]
-    [Tooltip("Defines the type used for the genes in each agent")]
-    EvolutionValueType evolutionType;
-
-    [SerializeField]
     [Tooltip("If true, will use a default fitness function. \nIt is recommended to use your own custom fitness function!")]
     bool useDefaultFitnessFunction = false;
 
@@ -44,12 +40,15 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     [SerializeField]
     [Tooltip("Used for adding agents to the heirarchy. \nIt is still possible to add agents normally, but this might make things easier")]
     GameObject agentPrefab;
+    
+    [SerializeField]
+    [Tooltip("Used to allow custom DNA types")]
+    DNA agentDNAType;
 
 
     GeneticAlgorithm geneticAlgorithm;
 
     Random random;
-    public EvolutionValueType EvoType { get { return evolutionType; } set { evolutionType = value; } }
 
     IEnumerator Start()
     {
@@ -99,7 +98,7 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
         int total = 0;
         for (int i = 0; i < geneticAlgorithm.BestGenes.Length; i++)
         {
-            int gene = geneticAlgorithm.BestGenes[i].GetEvolutionValue<int>();
+            int gene = (int)geneticAlgorithm.BestGenes[i];
             genes += gene + ", ";
             total += gene;
         }
@@ -109,8 +108,8 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     public float EvolutionFitnessFunction(Genome genome)
         => Mathf.Clamp01(CustomFitnessFunction(genome));
 
-    public EvolutionValue GetEvolutionRandomValue()
-        => new EvolutionValue(CustomRandomFunction(), EvoType);
+    public object GetEvolutionRandomValue()
+        => CustomRandomFunction();
 
     public EvolutionAgent GetAgentFromDNA(Genome dna)
     {

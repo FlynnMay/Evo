@@ -9,8 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
-  m_Name: EvoFloatDNA
-  m_EditorClassIdentifier: Assembly-CSharp::DNAFloat
-  evoType: 0
-  genes: []
+  m_Script: {fileID: 11500000, guid: 844a972cef5772842ab6fc2ee9cb09d7, type: 3}
+  m_Name: FloatTester
+  m_EditorClassIdentifier: 
+  genes:
+  - 1
+  - 1
+  - 0.1
+  - 0.5
+  - 0.75
+  - 0.3

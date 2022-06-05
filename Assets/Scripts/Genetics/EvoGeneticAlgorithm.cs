@@ -8,7 +8,7 @@ public class GeneticAlgorithm
     public List<Genome> Population { get; set; }
     public int Generation { get; private set; }
     public float BestFitness { get; private set; }
-    public EvolutionValue[] BestGenes { get; private set; }
+    public object[] BestGenes { get; private set; }
 
     public float mutationRate;
     Random random;
@@ -23,7 +23,7 @@ public class GeneticAlgorithm
         random = _random;
         fitnessSum = 0;
         BestFitness = 0;
-        BestGenes = new EvolutionValue[populationSize];
+        BestGenes = new object[populationSize];
         eliteCount = _eliteCount;
 
         for (int i = 0; i < populationSize; i++)
@@ -40,7 +40,7 @@ public class GeneticAlgorithm
         random = _random;
         fitnessSum = 0;
         BestFitness = 0;
-        BestGenes = new EvolutionValue[genomeSize];
+        BestGenes = new object[genomeSize];
         eliteCount = _eliteCount;
     }
 

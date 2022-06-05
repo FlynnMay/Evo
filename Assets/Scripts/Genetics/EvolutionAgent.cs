@@ -1,10 +1,12 @@
 using System;
+using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEditor;
 
 [Serializable]
 public class EvolutionAgent : MonoBehaviour
@@ -16,7 +18,7 @@ public class EvolutionAgent : MonoBehaviour
     //List<float> penalties = new List<float>();
     //List<float> rewards = new List<float>();
 
-    public DNA<float> importDNA;
+    public DNA importDNA = null;
     public Genome DNA { get; set; }
     public bool IsElite { get { return DNA.IsElite; } }
     public bool IsKing { get { return DNA.IsKing; } }
@@ -25,6 +27,15 @@ public class EvolutionAgent : MonoBehaviour
     public void Init(int size, System.Random random, IEvolutionInstructions instructions)
     {
         DNA = new Genome(size, random, instructions);
+
+        if (importDNA != null)
+        {
+            Type type = importDNA.GetType();
+            FieldInfo info = type.GetField("genes");
+            object genes = info.GetValue(importDNA);
+            DNA.Genes = ((IEnumerable)genes).Cast<object>().ToArray();
+        }
+
         //DNA.Genes = importDNA ? importDNA.genes : DNA.Genes;
     }
 
@@ -35,44 +46,16 @@ public class EvolutionAgent : MonoBehaviour
 
     public void ExportDNA()
     {
-        switch (DNA.EvoType)
-        {
-            case EvolutionValueType.EvoFloat:
-                ExportDNA<float>();
-                break;
-            case EvolutionValueType.EvoInt:
-                ExportDNA<int>();
-                break;
-            case EvolutionValueType.EvoBool:
-                ExportDNA<bool>();
-                break;
-            //case EvolutionValueType.EvoChar:
-            //    ExportDNA<char>();
-            //    break;
-            //case EvolutionValueType.EvoByte:
-            //    ExportDNA<byte>();
-            //    break;
-            //case EvolutionValueType.EvoDecimal:
-            //    ExportDNA<decimal>();
-            //    break;
-            //case EvolutionValueType.EvoDouble:
-            //    ExportDNA<double>();
-            //    break;
-            default:
-                break;
-        }       
-    }
+        Type type = importDNA.GetType();
+        ScriptableObject exportObject = ScriptableObject.CreateInstance(type);
 
-    private void ExportDNA<T>()
-    {
-        if (DNA.Genes.Any(g => !(g.value is T)))
-            throw new Exception("Evolution Type is not the same as the value");
+        type.GetMethod("SetGenesFromObject", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(exportObject, new object[]{ DNA.Genes });
 
-        string jsonString = DNA.Genes.Select(g => (T)g.value).ToArray().ToJson(true);
-        jsonString += JsonUtility.ToJson(DNA.EvoType);
-        string path = Application.dataPath + $"/Agents/{name}.json";
-        StreamWriter writer = new StreamWriter(path);
-        writer.Write(jsonString);
-        writer.Close();
+        string path = $"Assets/Agents/{name}.asset";
+        AssetDatabase.CreateAsset(exportObject, path);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        EditorUtility.FocusProjectWindow();
+        Selection.activeObject = exportObject;
     }
 }

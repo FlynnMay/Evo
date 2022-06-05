@@ -17,7 +17,6 @@ public class Tester : MonoBehaviour
     [Range(0, 2)]
     public float timeBetweenFeeding = 0.1f;
     NooralNet neuralNetwork;
-    public EvolutionValueType EvoType { get; set; } = EvolutionValueType.EvoInt;
 
     Dictionary<Layer, GameObject> layerObjectPairs = new Dictionary<Layer, GameObject>();
     Dictionary<Neuron, TextBubble> neuronObjectPairs = new Dictionary<Neuron, TextBubble>();

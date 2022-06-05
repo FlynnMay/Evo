@@ -3,7 +3,8 @@ MVP - minimum viable product
 What is the minimum that is needed to showcase my system:
 
 	[x] Time scale system
-	[ ] Export/Import Genes
+	[x] Export/Import Genes
+	[ ]	Better Custom Fitness & RandomValues
 	[ ] Penalties & Rewards
 	[x] Get Best Agent/ Genome
 	[x] Is Elite 

@@ -43,7 +43,7 @@ public class AgentController : MonoBehaviour
         meshRenderer.material.color = agent.IsKing ? Color.magenta : meshRenderer.material.color;
         //meshRenderer.enabled = agent.IsElite;
 
-        EvolutionValue[] genes = agent.DNA.Genes;
+        object[] genes = agent.DNA.Genes;
 
         timer -= GeneticTime.deltaTime;
 
@@ -59,8 +59,8 @@ public class AgentController : MonoBehaviour
             return;
         }
 
-        transform.rotation = Quaternion.Euler(0, genes[rotIndex].GetEvolutionValue<float>() * 360, 0);
-        speed = genes[0].GetEvolutionValue<float>();
+        transform.rotation = Quaternion.Euler(0, (float)genes[rotIndex] * 360, 0);
+        speed = (float)genes[0];
 
         agent.transform.position += transform.forward * speed * GeneticTime.deltaTime;
     }

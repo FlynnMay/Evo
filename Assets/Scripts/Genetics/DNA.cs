@@ -1,19 +1,30 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "EvoDNA", menuName = "EvoTools/EvoDNA")]
-public class DNA<T> : ScriptableObject
+// Empty holder class for DNA<T>
+public class DNA : ScriptableObject
 {
-    protected EvolutionValueType evoType;
-    public T[] genes;
 }
 
-[CreateAssetMenu(fileName = "EvoFloatDNA", menuName = "EvoTools/EvoFloatDNA")]
-public class DNAFloat : DNA<float>
+[CreateAssetMenu(fileName = "EvoDNA", menuName = "EvoTools/EvoDNA")]
+public class DNA<T> : DNA
 {
-    public DNAFloat()
+    public T[] genes;
+
+    public void SetGenes(T[] genes)
     {
-        evoType = EvolutionValueType.EvoFloat;
+        this.genes = genes;
+    }
+
+    protected void SetGenesFromObject(object[] genes)
+    {
+        this.genes = new T[genes.Length];
+        for (int i = 0; i < genes.Length; i++)
+        {
+            this.genes[i] = (T)genes[i];
+        }
     }
 }
+

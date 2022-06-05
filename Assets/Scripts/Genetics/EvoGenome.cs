@@ -5,9 +5,9 @@ using System.Collections.Generic;
 [Serializable]
 public class Genome
 {
-    public EvolutionValue[] Genes { get; set; }
+    public object[] Genes { get; set; }
     public float Fitness { get; set; }
-    public EvolutionValueType EvoType { get; private set; }
+    //public EvolutionValueType EvoType { get; private set; }
     public IEvolutionInstructions Instructions { get; private set; }
     public bool IsElite { get; set; }
     public bool IsKing { get; set; }
@@ -17,8 +17,8 @@ public class Genome
     public Genome(int size, Random _random, IEvolutionInstructions instructions)
     {
         Instructions = instructions;
-        EvoType = Instructions.EvoType;
-        Genes = new EvolutionValue[size];
+        //EvoType = Instructions.EvoType;
+        Genes = new object[size];
         random = _random;
 
         for (int i = 0; i < Genes.Length; i++)
