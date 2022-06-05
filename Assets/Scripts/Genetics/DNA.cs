@@ -8,7 +8,6 @@ public class DNA : ScriptableObject
 {
 }
 
-[CreateAssetMenu(fileName = "EvoDNA", menuName = "EvoTools/EvoDNA")]
 public class DNA<T> : DNA
 {
     public T[] genes;
