@@ -16,6 +16,8 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     // Used to generate custom random values for genetic algorithm
     public Func<object> CustomRandomFunction { get; set; }
 
+    public DNAValueGenerator valueGenerator;
+
     Dictionary<Genome, EvolutionAgent> genomeAgentPair = new Dictionary<Genome, EvolutionAgent>();
 
     [SerializeField]
@@ -49,6 +51,12 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     IEnumerator Start()
     {
         yield return new WaitForEndOfFrame();
+
+        CustomRandomFunction = () => 
+        {
+            return valueGenerator.GetType().GetMethod("GetValue").Invoke(valueGenerator, null); 
+        };
+
         random = new Random();
 
         LoadAgents();

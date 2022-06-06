@@ -31,7 +31,7 @@ public class GeneticAlgorithm
             Population.Add(new Genome(genomeSize, random, instructions));
         }
     }
-    
+
     public GeneticAlgorithm(List<Genome> genomes, int genomeSize, Random _random, IEvolutionInstructions instructions, float _mutationRate = 0.01f, int _eliteCount = 2)
     {
         Generation = 1;
@@ -51,7 +51,7 @@ public class GeneticAlgorithm
 
         CalculateFitness();
         Population = Population.OrderBy(x => x.Fitness).ToList();
-        Population.Reverse();
+        //Population.Reverse();
         List<Genome> newPopulation = new List<Genome>();
 
         Population[0].IsKing = true;
@@ -64,7 +64,7 @@ public class GeneticAlgorithm
                 newPopulation.Add(Population[i]);
                 continue;
             }
-            
+
             Genome parentA = ChooseParent();
             Genome parentB = ChooseParent();
 
@@ -97,17 +97,47 @@ public class GeneticAlgorithm
 
     Genome ChooseParent()
     {
-        double randNum = random.NextDouble() * fitnessSum;
+        ////Roullete wheel
+        //float num = (float)random.NextDouble();
+        //float sum = 0;
+        //for (int i = 0; i < Population.Count; i++)
+        //{
+        //    sum += Population[i].Fitness;
 
-        for (int i = 0; i < Population.Count; i++)
+        //    if (num < sum)
+        //        return Population[i];
+        //}
+
+        //return null;
+
+        // Pick the first genome if we only have one
+        if(Population.Count == 1)
+            return Population[0];
+
+        // Cumaltive Weights Roullete Wheel
+        float[] weights = Population.Select(g => g.Fitness).ToArray();
+        float[] cumaltiveWeights = new float[weights.Length];
+
+        cumaltiveWeights[0] = weights[0];
+        for (int i = 1; i < weights.Length; i++)
+            cumaltiveWeights[i] = weights[i] + cumaltiveWeights[i - 1];
+
+        float min = cumaltiveWeights.Min();
+        float max = cumaltiveWeights.Max();
+
+        float randomNumber = (float)(random.NextDouble() * (max - min) + min);
+
+        int index = -1;
+        for (int i = 0; i < cumaltiveWeights.Length; i++)
         {
-            if (randNum < Population[i].Fitness)
-                return Population[i];
-
-            randNum -= Population[i].Fitness;
+            if (randomNumber < cumaltiveWeights[i])
+            {
+                index = i;
+                break;
+            }
         }
 
-        return Population.Last();
+        return Population[index];
     }
 }
 

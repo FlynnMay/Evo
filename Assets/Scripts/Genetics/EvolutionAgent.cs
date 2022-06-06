@@ -20,8 +20,8 @@ public class EvolutionAgent : MonoBehaviour
 
     //List<float> penalties = new List<float>();
     //List<float> rewards = new List<float>();
-
-    public DNA importDNA = null;
+    [Tooltip("Overwrites default DNA")]
+    public DNA defaultDNA = null;
     public Genome DNA { get; set; }
     public bool IsElite { get { return DNA.IsElite; } }
     public bool IsKing { get { return DNA.IsKing; } }
@@ -32,11 +32,11 @@ public class EvolutionAgent : MonoBehaviour
         DNA = new Genome(size, random, instructions);
         DNAType = _DNAType;
 
-        if (importDNA != null)
+        if (defaultDNA != null)
         {
-            Type type = importDNA.GetType();
+            Type type = defaultDNA.GetType();
             FieldInfo info = type.GetField("genes");
-            object genes = info.GetValue(importDNA);
+            object genes = info.GetValue(defaultDNA);
             DNA.Genes = ((IEnumerable)genes).Cast<object>().ToArray();
         }
 

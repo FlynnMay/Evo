@@ -31,10 +31,21 @@ public class EvolutionGroupEditor : Editor
         GUILayout.Space(5);
         DebugInfo(evolutionGroup);
 
+        GUILayout.Space(5);
+        FitnessProgressBar(evolutionGroup);
+
         serializedObject.ApplyModifiedProperties();
     }
 
-    private static void MutationRateButton(EvolutionGroup evolutionGroup)
+    private void FitnessProgressBar(EvolutionGroup evolutionGroup)
+    {
+        Rect r = EditorGUILayout.BeginVertical();
+        EditorGUI.ProgressBar(r, evolutionGroup.GetBestFitness(), "Fitness");
+        GUILayout.Space(18);
+        EditorGUILayout.EndVertical();
+    }
+
+    private void MutationRateButton(EvolutionGroup evolutionGroup)
     {
         GUIContent calculateMutationRateContent = new GUIContent("Calculate Mutation Rate", "Calculates the mutation rate based on the number of assigned agents.\n(1/AgentCount)");
         if (GUILayout.Button(calculateMutationRateContent))
@@ -80,7 +91,7 @@ public class EvolutionGroupEditor : Editor
         GUILayout.EndHorizontal();
     }
 
-    private static void AgentAssignmentButtons(EvolutionGroup evolutionGroup)
+    private void AgentAssignmentButtons(EvolutionGroup evolutionGroup)
     {
         GUILayout.BeginHorizontal();
 

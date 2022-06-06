@@ -24,16 +24,20 @@ public class GroupController : MonoBehaviour
             return 1.0f / (dist * dist);
         };
 
-        group.CustomRandomFunction = () =>
-        {
-            return UnityEngine.Random.Range(-1.0f, 1.0f);
-        };
+        //group.CustomRandomFunction = () =>
+        //{
+        //    return UnityEngine.Random.Range(-1.0f, 1.0f);
+        //};
     }
 
     void Update()
     {
         GeneticTime.timeScale = timeScale;
         timer -= GeneticTime.deltaTime;
+
+        if (group.agents.Length <= 0)
+            return;
+
         if (group.agents.All(a => !a.IsAlive) || timer <= 0.0f)
         {
             timer = timerMax;

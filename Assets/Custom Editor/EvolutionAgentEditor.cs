@@ -14,10 +14,8 @@ public class EvolutionAgentEditor : Editor
 
         EvolutionAgent agent = target as EvolutionAgent;
 
-        if (GUILayout.Button(new GUIContent("Export DNA", "Allows you to save the DNA of an agent")))
-        {
+        GUILayout.Space(5);
+        if (GUILayout.Button(new GUIContent("Save DNA", "Save the DNA of an agent")))
             agent.ExportDNA();
-            AssetDatabase.Refresh();
-        }
     }
 }

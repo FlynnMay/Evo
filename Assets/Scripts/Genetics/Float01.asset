@@ -9,9 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 251a14b71bb02d74e97a0f62d82549af, type: 3}
-  m_Name: Instructions
+  m_Script: {fileID: 11500000, guid: 6a07cf97403206d4bba47be36c9faa19, type: 3}
+  m_Name: Float01
   m_EditorClassIdentifier: 
-  fitnessFunc:
-    m_PersistentCalls:
-      m_Calls: []
