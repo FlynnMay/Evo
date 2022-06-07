@@ -111,7 +111,7 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
 
         value = agent.CalculateRewardPenalties(value);
 
-        return Mathf.Clamp01(value);
+        return value;
     }
 
     public object GetEvolutionRandomValue()

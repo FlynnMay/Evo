@@ -72,13 +72,12 @@ public class AgentController : MonoBehaviour
         if (other.CompareTag("KillBox"))
         {
             agent.IsAlive = false;
-            agent.Penalise(.05f);
+            agent.Penalise();
 
         }
         else if (other.CompareTag("Destination"))
         {
             agent.IsAlive = false;
-            agent.Penalise((lifeTime / agent.group.timerMax) / 100);
         }
         
     }
@@ -90,9 +89,9 @@ public class AgentController : MonoBehaviour
             Vector3 dir = (transform.position - other.transform.position).normalized;
             float dot = Vector3.Dot(dir, other.transform.forward);
             if (dot > 0.0f)
-                agent.Reward(0.1f);
+                agent.Reward();
             else if (dot < 0.0f)
-                agent.Penalise(0.1f);
+                agent.Penalise();
         }
     }
 }

@@ -29,6 +29,7 @@ public class EvolutionAgent : MonoBehaviour
     public bool IsAlive { get { return isAlive; } set { isAlive = value; } }
 
     [HideInInspector] public EvolutionGroup group;
+    public int Score { get; private set; }
 
     public void Init(int size, System.Random random, DNA _DNAType, EvolutionGroup _group)
     {
@@ -49,6 +50,7 @@ public class EvolutionAgent : MonoBehaviour
 
     public void Reset()
     {
+        Score = 0;
         IsAlive = true;
         penalties.Clear();
         onResetEvent?.Invoke();
@@ -69,21 +71,23 @@ public class EvolutionAgent : MonoBehaviour
         Selection.activeObject = exportObject;
     }
 
-    public void Penalise(float amount)
+    public void Penalise()
     {
-        penalties.Add(Mathf.Clamp01(amount));
+        Score--;
     }
-    
-    public void Reward(float amount)
+
+    public void Reward()
     {
-        rewards.Add(Mathf.Clamp01(amount));
+        Score++;
     }
 
     public float CalculateRewardPenalties(float value)
     {
-        float gap = 1 - value;
-        float direction = gap / Mathf.Abs(gap);
-
-        return value + penalties.Sum() * -direction + rewards.Sum() * direction;
+        int threshold = 2;
+        //return Score < threshold ? 0 : value;
+        //return Score < threshold ? value / (threshold / Score) : value;
+        int scoreTemp = Mathf.Clamp(Score, int.MinValue, threshold);
+        float num = value * (scoreTemp / threshold);
+        return (Mathf.Clamp(num, -1, 1) + 1) / 2;
     }
 }
