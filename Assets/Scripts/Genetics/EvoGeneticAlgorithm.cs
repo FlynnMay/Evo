@@ -51,7 +51,7 @@ public class GeneticAlgorithm
 
         CalculateFitness();
         Population = Population.OrderBy(x => x.Fitness).ToList();
-        //Population.Reverse();
+        Population.Reverse();
         List<Genome> newPopulation = new List<Genome>();
 
         Population[0].IsKing = true;
@@ -97,47 +97,27 @@ public class GeneticAlgorithm
 
     Genome ChooseParent()
     {
-        ////Roullete wheel
-        //float num = (float)random.NextDouble();
-        //float sum = 0;
-        //for (int i = 0; i < Population.Count; i++)
-        //{
-        //    sum += Population[i].Fitness;
+        // Roullete wheel
 
-        //    if (num < sum)
-        //        return Population[i];
-        //}
-
-        //return null;
-
-        // Pick the first genome if we only have one
-        if(Population.Count == 1)
+        if(fitnessSum <= 0)
             return Population[0];
 
-        // Cumaltive Weights Roullete Wheel
-        float[] weights = Population.Select(g => g.Fitness).ToArray();
-        float[] cumaltiveWeights = new float[weights.Length];
+        float[] fitnessProbabillity = Population.Select(g => g.Fitness / fitnessSum).ToArray();
+        float[] cumaltiveProbabillity = new float[fitnessProbabillity.Length + 1];
 
-        cumaltiveWeights[0] = weights[0];
-        for (int i = 1; i < weights.Length; i++)
-            cumaltiveWeights[i] = weights[i] + cumaltiveWeights[i - 1];
+        cumaltiveProbabillity[0] = 0.0f;
+        for (int i = 1; i < cumaltiveProbabillity.Length; i++)
+            cumaltiveProbabillity[i] = fitnessProbabillity[i - 1] + cumaltiveProbabillity[i - 1];
 
-        float min = cumaltiveWeights.Min();
-        float max = cumaltiveWeights.Max();
+        float randNum = (float)random.NextDouble();
 
-        float randomNumber = (float)(random.NextDouble() * (max - min) + min);
-
-        int index = -1;
-        for (int i = 0; i < cumaltiveWeights.Length; i++)
+        for (int i = 0; i < cumaltiveProbabillity.Length; i++)
         {
-            if (randomNumber < cumaltiveWeights[i])
-            {
-                index = i;
-                break;
-            }
+            if (cumaltiveProbabillity[i] > randNum)
+                return Population[i - 1];
         }
 
-        return Population[index];
+        return null;
     }
 }
 

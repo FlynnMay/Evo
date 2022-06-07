@@ -4,8 +4,8 @@ What is the minimum that is needed to showcase my system:
 
 	[x] Time scale system
 	[x] Export/Import Genes
-	[ ]	Better Custom Fitness & Random Values
+	[x]	Better Custom Fitness & Random Values -> Individual scriptable objects similar to DNA
 	[ ] Penalties & Rewards
 	[x] Get Best Agent/ Genome
 	[x] Is Elite 
-	
+	[ ] Better Connection between agent and genomes -> currently bugged gets wrong agent

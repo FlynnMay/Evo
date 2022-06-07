@@ -9,7 +9,8 @@ public class AgentController : MonoBehaviour
     float speed = 1;
     int rotIndex = 1;
     public float timerMax = 0.5f;
-    float timer = 0;
+    float timer = 0.0f;
+    float lifeTime = 0.0f;
     Quaternion startingRotation;
     Vector3 startingPosition;
     MeshRenderer meshRenderer;
@@ -20,7 +21,7 @@ public class AgentController : MonoBehaviour
         timer = timerMax;
         //StartCoroutine(LerpFunction(Quaternion.Euler(targetRotation), 1));
         agent = GetComponent<EvolutionAgent>();
-        
+
         startingPosition = transform.position;
         startingRotation = transform.rotation;
 
@@ -28,9 +29,9 @@ public class AgentController : MonoBehaviour
         {
             rotIndex = 1;
             timer = timerMax;
+            lifeTime = 0.0f;
             transform.position = startingPosition;
             transform.rotation = startingRotation;
-            agent.IsAlive = true;
         });
     }
 
@@ -45,6 +46,7 @@ public class AgentController : MonoBehaviour
 
         object[] genes = agent.DNA.Genes;
 
+        lifeTime += GeneticTime.deltaTime;
         timer -= GeneticTime.deltaTime;
 
         if (timer < 0)
@@ -53,7 +55,7 @@ public class AgentController : MonoBehaviour
             rotIndex++;
         }
 
-        if(rotIndex > genes.Length - 1)
+        if (rotIndex > genes.Length - 1)
         {
             agent.IsAlive = false;
             return;
@@ -67,6 +69,30 @@ public class AgentController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        agent.IsAlive = !other.CompareTag("KillBox");
+        if (other.CompareTag("KillBox"))
+        {
+            agent.IsAlive = false;
+            agent.Penalise(.05f);
+
+        }
+        else if (other.CompareTag("Destination"))
+        {
+            agent.IsAlive = false;
+            agent.Penalise((lifeTime / agent.group.timerMax) / 100);
+        }
+        
+    }
+    
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("CheckPoint"))
+        {
+            Vector3 dir = (transform.position - other.transform.position).normalized;
+            float dot = Vector3.Dot(dir, other.transform.forward);
+            if (dot > 0.0f)
+                agent.Reward(0.1f);
+            else if (dot < 0.0f)
+                agent.Penalise(0.1f);
+        }
     }
 }

@@ -13,49 +13,45 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     // Used to apply custom calculations to the fitness result, the returned value will be clamped between 0 and 1
     public Func<Genome, float> CustomFitnessFunction { get; set; }
 
-    // Used to generate custom random values for genetic algorithm
-    public Func<object> CustomRandomFunction { get; set; }
-
+    [Tooltip("Used to generate custom random values for genetic algorithm")]
     public DNAValueGenerator valueGenerator;
 
-    Dictionary<Genome, EvolutionAgent> genomeAgentPair = new Dictionary<Genome, EvolutionAgent>();
+    [Tooltip("Used to calclulate fitness for genetic algorithm")]
+    public FitnessFunction fitnessFunction;
 
     [SerializeField]
     [Tooltip("Determines the chance of a agent to be mutated")]
     float mutationRate = 0.01f;
+
     [SerializeField]
     [Tooltip("Determines the number of surperior agents which live on to the next generation")]
-    int eliteCount = 2;
+    int eliteCount = 3;
 
-    
     [SerializeField]
     [Tooltip("Used for adding agents to the heirarchy. \nIt is still possible to add agents manually, but this might make things easier")]
     GameObject agentPrefab;
-    
+
     [SerializeField]
     [Tooltip("Used to allow custom DNA types")]
     DNA agentDNAType;
 
-    //[SerializeField]
-    //[Tooltip("If true, will use a default fitness function. \nIt is recommended to use your own custom fitness function!")]
-    //bool useDefaultFitnessFunction = false;
+    [SerializeField] bool useTimer = true;
+    [Range(0f, 100f)] [SerializeField] float timeScale = 1.0f;
+    public float timerMax = 30.0f;
+    [ReadOnly] [SerializeField] float timer = 0.0f;
 
-    //[SerializeField]
-    //[Tooltip("If true, will use a random value generator for the agents genomes. \nIt is recommended to use your own custom value generator!")]
-    //bool useDefaultRandomValue = false;
-    
     GeneticAlgorithm geneticAlgorithm;
-
+    Dictionary<Genome, EvolutionAgent> genomeAgentPair = new Dictionary<Genome, EvolutionAgent>();
     Random random;
 
     IEnumerator Start()
     {
-        yield return new WaitForEndOfFrame();
+        timer = timerMax;
 
-        CustomRandomFunction = () => 
-        {
-            return valueGenerator.GetType().GetMethod("GetValue").Invoke(valueGenerator, null); 
-        };
+        if (GeneticTime.instance == null)
+            gameObject.AddComponent<GeneticTime>();
+
+        yield return new WaitForEndOfFrame();
 
         random = new Random();
 
@@ -70,6 +66,24 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
         List<Genome> genomes = agents.Select(a => a.DNA).ToList();
 
         geneticAlgorithm = new GeneticAlgorithm(genomes, genomeSize, random, this, mutationRate, eliteCount);
+    }
+
+    void Update()
+    {
+        GeneticTime.timeScale = timeScale;
+        timer -= GeneticTime.deltaTime;
+
+        if (agents.Length <= 0)
+            return;
+
+        if (agents.All(a => !a.IsAlive) || (timer <= 0.0f && useTimer))
+        {
+            timer = timerMax;
+            EvolveGeneration();
+
+            foreach (var agent in agents)
+                agent.Reset();
+        }
     }
 
     public void EvolveGeneration()
@@ -88,10 +102,22 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     }
 
     public float EvolutionFitnessFunction(Genome genome)
-        => Mathf.Clamp01(CustomFitnessFunction(genome));
+    {
+        EvolutionAgent agent = GetAgentFromDNA(genome);
+
+        float value = (float)fitnessFunction.GetType()
+            .GetMethod("GetValue")
+            .Invoke(fitnessFunction, new object[] { agent });
+
+        value = agent.CalculateRewardPenalties(value);
+
+        return Mathf.Clamp01(value);
+    }
 
     public object GetEvolutionRandomValue()
-        => CustomRandomFunction();
+    {
+        return valueGenerator.GetType().GetMethod("GetValue").Invoke(valueGenerator, null);
+    }
 
     public EvolutionAgent GetAgentFromDNA(Genome dna)
     {
@@ -102,7 +128,7 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     {
         agents = GetComponentsInChildren<EvolutionAgent>();
     }
-    
+
     public void ClearAgents()
     {
         agents = new EvolutionAgent[0];
@@ -122,7 +148,7 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     {
         return 1.0f / agents.Length;
     }
-    
+
     public void AssignMutationRateToCalculatedRate()
     {
         mutationRate = CalculateMutationRate();

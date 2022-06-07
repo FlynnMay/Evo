@@ -7,6 +7,6 @@ public class DNAFloatGenerator : DNAValueGenerator<float>
 {
     public override float GetValue()
     {
-        return Random.Range(-1.0f, 1.0f);
+        return Random.Range(0.0f, 1.0f);
     }
 }

@@ -17,5 +17,7 @@ public class EvolutionAgentEditor : Editor
         GUILayout.Space(5);
         if (GUILayout.Button(new GUIContent("Save DNA", "Save the DNA of an agent")))
             agent.ExportDNA();
+
+
     }
 }

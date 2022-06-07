@@ -18,8 +18,9 @@ public class EvolutionAgent : MonoBehaviour
     [ReadOnly] [SerializeField] bool isAlive = true;
     [ReadOnly] [SerializeField] DNA DNAType;
 
-    //List<float> penalties = new List<float>();
-    //List<float> rewards = new List<float>();
+    List<float> penalties = new List<float>();
+    List<float> rewards = new List<float>();
+
     [Tooltip("Overwrites default DNA")]
     public DNA defaultDNA = null;
     public Genome DNA { get; set; }
@@ -27,9 +28,12 @@ public class EvolutionAgent : MonoBehaviour
     public bool IsKing { get { return DNA.IsKing; } }
     public bool IsAlive { get { return isAlive; } set { isAlive = value; } }
 
-    public void Init(int size, System.Random random, DNA _DNAType, IEvolutionInstructions instructions)
+    [HideInInspector] public EvolutionGroup group;
+
+    public void Init(int size, System.Random random, DNA _DNAType, EvolutionGroup _group)
     {
-        DNA = new Genome(size, random, instructions);
+        group = _group;
+        DNA = new Genome(size, random, _group);
         DNAType = _DNAType;
 
         if (defaultDNA != null)
@@ -45,6 +49,8 @@ public class EvolutionAgent : MonoBehaviour
 
     public void Reset()
     {
+        IsAlive = true;
+        penalties.Clear();
         onResetEvent?.Invoke();
     }
 
@@ -61,5 +67,23 @@ public class EvolutionAgent : MonoBehaviour
         AssetDatabase.Refresh();
         EditorUtility.FocusProjectWindow();
         Selection.activeObject = exportObject;
+    }
+
+    public void Penalise(float amount)
+    {
+        penalties.Add(Mathf.Clamp01(amount));
+    }
+    
+    public void Reward(float amount)
+    {
+        rewards.Add(Mathf.Clamp01(amount));
+    }
+
+    public float CalculateRewardPenalties(float value)
+    {
+        float gap = 1 - value;
+        float direction = gap / Mathf.Abs(gap);
+
+        return value + penalties.Sum() * -direction + rewards.Sum() * direction;
     }
 }
