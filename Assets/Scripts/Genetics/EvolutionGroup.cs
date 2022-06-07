@@ -40,7 +40,7 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     public float timerMax = 30.0f;
     [ReadOnly] [SerializeField] float timer = 0.0f;
 
-    GeneticAlgorithm geneticAlgorithm;
+    EvoGeneticAlgorithm geneticAlgorithm;
     Dictionary<Genome, EvolutionAgent> genomeAgentPair = new Dictionary<Genome, EvolutionAgent>();
     Random random;
 
@@ -65,7 +65,7 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
 
         List<Genome> genomes = agents.Select(a => a.DNA).ToList();
 
-        geneticAlgorithm = new GeneticAlgorithm(genomes, genomeSize, random, this, mutationRate, eliteCount);
+        geneticAlgorithm = new EvoGeneticAlgorithm(genomes, genomeSize, random, this, mutationRate, eliteCount);
     }
 
     void Update()
@@ -75,6 +75,8 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
 
         if (agents.Length <= 0)
             return;
+
+        Debug.Log($"There are \"{agents.Where(a => a.IsElite).Count()}\" elites");
 
         if (agents.All(a => !a.IsAlive) || (timer <= 0.0f && useTimer))
         {
@@ -92,13 +94,6 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
             return;
 
         geneticAlgorithm.NewGeneration();
-
-        genomeAgentPair.Clear();
-        for (int i = 0; i < agents.Length; i++)
-        {
-            agents[i].DNA = geneticAlgorithm.Population[i];
-            genomeAgentPair.Add(geneticAlgorithm.Population[i], agents[i]);
-        }
     }
 
     public float EvolutionFitnessFunction(Genome genome)
@@ -121,7 +116,7 @@ public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
 
     public EvolutionAgent GetAgentFromDNA(Genome dna)
     {
-        return genomeAgentPair.ContainsKey(dna) ? genomeAgentPair[dna] : null;
+        return dna.agent;
     }
 
     public void LoadAgents()

@@ -12,10 +12,12 @@ public class Genome
     public bool IsElite { get; set; }
     public bool IsKing { get; set; }
 
+    public EvolutionAgent agent;
     Random random;
 
-    public Genome(int size, Random _random, IEvolutionInstructions instructions)
+    public Genome(int size, Random _random, IEvolutionInstructions instructions, EvolutionAgent _agent = null)
     {
+        agent = _agent;
         Instructions = instructions;
         //EvoType = Instructions.EvoType;
         Genes = new object[size];

@@ -34,7 +34,7 @@ public class EvolutionAgent : MonoBehaviour
     public void Init(int size, System.Random random, DNA _DNAType, EvolutionGroup _group)
     {
         group = _group;
-        DNA = new Genome(size, random, _group);
+        DNA = new Genome(size, random, _group, this);
         DNAType = _DNAType;
 
         if (defaultDNA != null)
@@ -71,22 +71,22 @@ public class EvolutionAgent : MonoBehaviour
         Selection.activeObject = exportObject;
     }
 
-    public void Penalise()
+    public void Penalise(int amount = 1)
     {
-        Score--;
+        Score -= amount;
     }
 
-    public void Reward()
+    public void Reward(int amount = 1)
     {
-        Score++;
+        Score += amount;
     }
 
     public float CalculateRewardPenalties(float value)
     {
-        int threshold = 2;
+        float threshold = 4;
         //return Score < threshold ? 0 : value;
         //return Score < threshold ? value / (threshold / Score) : value;
-        int scoreTemp = Mathf.Clamp(Score, int.MinValue, threshold);
+        float scoreTemp = Mathf.Clamp(Score, int.MinValue, threshold);
         float num = value * (scoreTemp / threshold);
         return (Mathf.Clamp(num, -1, 1) + 1) / 2;
     }
