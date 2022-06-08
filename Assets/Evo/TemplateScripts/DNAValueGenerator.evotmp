@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Evo;
 
-[CreateAssetMenu(fileName = "ValueGenerator", menuName = "CustomEvoTools/ValueGenerators/Value")]
+[CreateAssetMenu(fileName = "ValueGenerator", menuName = "EvoCustom/ValueGenerators/Value")]
 public class DNAObjectGenerator : DNAValueGenerator<object>
 {
     public override object GetValue()
