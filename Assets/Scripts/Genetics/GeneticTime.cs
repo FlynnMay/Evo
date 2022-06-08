@@ -1,20 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class GeneticTime : MonoBehaviour
+namespace Evo
 {
-    public static GeneticTime instance;
-    public static float timeScale = 1.0f;
-    public static float deltaTime;
-
-    void Awake()
+    /// <summary>
+    /// Useful for when Unity's regular Time class doesn't need to be scaled. WARNING: This can cause issues with physics!
+    /// </summary>
+    public class GeneticTime : MonoBehaviour
     {
-        instance = this;
-    }
+        /// <summary>
+        /// Used for singleton Implentation
+        /// </summary>
+        public static GeneticTime instance;
 
-    void Update()
-    {
-        deltaTime = Time.deltaTime * timeScale;        
+        /// <summary>
+        /// The rate at which time passes
+        /// </summary>
+        public static float timeScale = 1.0f;
+
+        /// <summary>
+        /// The scaled time in seconds since the last frame
+        /// </summary>
+        public static float deltaTime;
+
+        void Awake()
+        {
+            instance = this;
+        }
+
+        void Update()
+        {
+            deltaTime = Time.unscaledDeltaTime * timeScale;
+        }
     }
 }

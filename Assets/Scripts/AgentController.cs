@@ -2,6 +2,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Evo;
 
 public class AgentController : MonoBehaviour
 {
@@ -52,8 +53,8 @@ public class AgentController : MonoBehaviour
 
         object[] genes = agent.DNA.Genes;
 
-        lifeTime += GeneticTime.deltaTime;
-        timer -= GeneticTime.deltaTime;
+        lifeTime += Time.deltaTime;
+        timer -= Time.deltaTime;
 
         if (timer < 0)
         {
@@ -70,7 +71,7 @@ public class AgentController : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, (float)genes[rotIndex] * 360, 0);
         speed = (float)genes[0];
 
-        agent.transform.position += transform.forward * speed * GeneticTime.deltaTime;
+        agent.transform.position += transform.forward * speed * Time.deltaTime;
     }
 
     private void OnTriggerEnter(Collider other)

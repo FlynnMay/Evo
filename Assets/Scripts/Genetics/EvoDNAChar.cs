@@ -2,7 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "DNAChar", menuName = "EvoTools/EvoCharDNA")]
-public class EvoDNAChar : DNA<char>
+namespace Evo
 {
+    /// <summary>
+    /// Wrapper for DNA of type char
+    /// </summary>
+    [CreateAssetMenu(fileName = "DNAChar", menuName = "EvoDefaults/DNATypes/EvoCharDNA")]
+    public class EvoDNAChar : DNA<char>
+    {
+    }
 }

@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Evo;
 
 public class DistanceFunctionTester : MonoBehaviour
 {
-    public SampleDistanceFunction distanceFunction;
+    public ManhattanDistanceFitnessFunction distanceFunction;
 
     void Start()
     {

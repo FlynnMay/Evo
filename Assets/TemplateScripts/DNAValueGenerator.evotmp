@@ -1,0 +1,12 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "ValueGenerator", menuName = "CustomEvoTools/ValueGenerators/Value")]
+public class DNAObjectGenerator : DNAValueGenerator<object>
+{
+    public override object GetValue()
+    {
+        return null;
+    }
+}

@@ -2,8 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "DNAFloat", menuName = "EvoTools/EvoFloatDNA")]
-public class EvoDNAFloat : DNA<float>
+namespace Evo
 {
+    /// <summary>
+    /// Wrapper for DNA of type float
+    /// </summary>
+    [CreateAssetMenu(fileName = "DNAFloat", menuName = "EvoDefaults/DNATypes/EvoFloatDNA")]
+    public class EvoDNAFloat : DNA<float>
+    {
 
+    }
 }
