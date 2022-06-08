@@ -8,10 +8,12 @@ namespace Evo.Tools
 {
     public static class MenuTools
     {
+        static readonly string filePath = "Assets/Evo/TemplateScripts/";
+
         [MenuItem("Evo/Create/DNA Type")]
         public static void CreateDNATypeScript()
         {
-            string copyPath = "Assets/TemplateScripts/DNAObject.evotmp";
+            string copyPath = filePath + "DNAObject.evotmp";
             string path = "Assets/DNAObject.cs";
 
             CopyFileToPath(copyPath, path);
@@ -20,7 +22,7 @@ namespace Evo.Tools
         [MenuItem("Evo/Create/DNA Value Generator")]
         public static void CreateDNAValueGeneratorScript()
         {
-            string copyPath = "Assets/TemplateScripts/DNAValueGenerator.evotmp";
+            string copyPath = filePath + "DNAValueGenerator.evotmp";
             string path = "Assets/DNAValueGenerator.cs";
 
             CopyFileToPath(copyPath, path);
@@ -29,7 +31,7 @@ namespace Evo.Tools
         [MenuItem("Evo/Create/Custom Agent Fitness")]
         public static void CreateFitnessScript()
         {
-            string copyPath = "Assets/TemplateScripts/AgentFitness.evotmp";
+            string copyPath = filePath + "AgentFitness.evotmp";
             string path = "Assets/AgentFitness.cs";
 
             CopyFileToPath(copyPath, path);
