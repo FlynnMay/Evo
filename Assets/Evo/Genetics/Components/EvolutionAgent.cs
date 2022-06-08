@@ -102,7 +102,7 @@ namespace Evo
 
             type.GetMethod("SetGenesFromObject", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(exportObject, new object[] { DNA.Genes });
 
-            string path = $"Assets/Agents/{name}.asset";
+            string path = Tools.FilePathWizard.GetPath(Tools.FilePathWizard.agentsKey) + name;
             AssetDatabase.CreateAsset(exportObject, path);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

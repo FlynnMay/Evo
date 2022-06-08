@@ -9699,7 +9699,7 @@ MonoBehaviour:
   evolveOnExtinction: 1
   agentPrefab: {fileID: 303091259893970622, guid: 40fc8d8664461c74e8270e54c20ffc8e, type: 3}
   genomeSize: 30
-  agentDNAType: {fileID: 11400000, guid: 1f0a6a6b859a3e1468422fbb259fa800, type: 2}
+  agentDNAType: {fileID: 11400000, guid: 0b901c6279bd8f04b9aaeb85314b8d07, type: 2}
   rewardThreshold: 4
   timerSettings:
     useTimer: 1

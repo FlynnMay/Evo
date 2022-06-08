@@ -8,13 +8,11 @@ namespace Evo.Tools
 {
     public static class MenuTools
     {
-        static readonly string filePath = "Assets/Evo/TemplateScripts/";
-
         [MenuItem("Evo/Create/DNA Type")]
         public static void CreateDNATypeScript()
         {
-            string copyPath = filePath + "DNAObject.evotmp";
-            string path = "Assets/DNAObject.cs";
+            string copyPath = FilePathWizard.GetPath(FilePathWizard.templateKey) + "DNAObject.evotmp";
+            string path = FilePathWizard.GetPath(FilePathWizard.DNATypeKey) + "DNAObject.cs";
 
             CopyFileToPath(copyPath, path);
         }
@@ -22,8 +20,8 @@ namespace Evo.Tools
         [MenuItem("Evo/Create/DNA Value Generator")]
         public static void CreateDNAValueGeneratorScript()
         {
-            string copyPath = filePath + "DNAValueGenerator.evotmp";
-            string path = "Assets/DNAValueGenerator.cs";
+            string copyPath = FilePathWizard.GetPath(FilePathWizard.templateKey) + "DNAValueGenerator.evotmp";
+            string path = FilePathWizard.GetPath(FilePathWizard.DNAValueGeneratorKey) + "DNAValueGenerator.cs";
 
             CopyFileToPath(copyPath, path);
         }
@@ -31,8 +29,8 @@ namespace Evo.Tools
         [MenuItem("Evo/Create/Custom Agent Fitness")]
         public static void CreateFitnessScript()
         {
-            string copyPath = filePath + "AgentFitness.evotmp";
-            string path = "Assets/AgentFitness.cs";
+            string copyPath = FilePathWizard.GetPath(FilePathWizard.templateKey) + "AgentFitness.evotmp";
+            string path = FilePathWizard.GetPath(FilePathWizard.agentFitnessKey) + "Assets/AgentFitness.cs";
 
             CopyFileToPath(copyPath, path);
         }
