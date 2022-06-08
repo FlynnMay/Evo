@@ -30,7 +30,7 @@ namespace Evo.Tools
         public static void CreateFitnessScript()
         {
             string copyPath = FilePathWizard.GetPath(FilePathWizard.templateKey) + "AgentFitness.evotmp";
-            string path = FilePathWizard.GetPath(FilePathWizard.agentFitnessKey) + "Assets/AgentFitness.cs";
+            string path = FilePathWizard.GetPath(FilePathWizard.agentFitnessKey) + "AgentFitness.cs";
 
             CopyFileToPath(copyPath, path);
         }

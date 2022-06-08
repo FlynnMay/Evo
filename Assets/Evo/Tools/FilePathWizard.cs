@@ -89,6 +89,9 @@ namespace Evo.Tools
         {
             PlayerPrefs.SetString(agentsKey, agentsPath);
             PlayerPrefs.SetString(templateKey, templatePath);
+            PlayerPrefs.SetString(DNATypeKey, DNATypePath);
+            PlayerPrefs.SetString(DNAValueGeneratorKey, DNAValueGeneratorPath);
+            PlayerPrefs.SetString(agentFitnessKey, customAgentFitnessPath);
 
             if (!createPaths)
                 return;
@@ -96,8 +99,17 @@ namespace Evo.Tools
             if(!Directory.Exists(agentsPath))
                 Directory.CreateDirectory(agentsPath);
 
-            if(!Directory.Exists(templatePath))
-                Directory.CreateDirectory(templatePath);
+            if(!Directory.Exists(DNATypePath))
+                Directory.CreateDirectory(DNATypePath);
+            
+            if(!Directory.Exists(agentsPath))
+                Directory.CreateDirectory(agentsPath);
+
+            if(!Directory.Exists(DNAValueGeneratorPath))
+                Directory.CreateDirectory(DNAValueGeneratorPath);
+
+            if(!Directory.Exists(customAgentFitnessPath))
+                Directory.CreateDirectory(customAgentFitnessPath);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
