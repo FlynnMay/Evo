@@ -26,7 +26,7 @@ namespace Evo.Tools
             CopyFileToPath(copyPath, path);
         }
 
-        [MenuItem("Evo/Create/Agent Fitness Calculator")]
+        [MenuItem("Evo/Create/Custom Agent Fitness")]
         public static void CreateFitnessScript()
         {
             string copyPath = "Assets/TemplateScripts/AgentFitness.evotmp";
