@@ -140,7 +140,9 @@ namespace Evo
                 return value;
 
             float scoreTemp = Mathf.Clamp(Score, int.MinValue, rewardThreshold);
-            float num = value * (scoreTemp / rewardThreshold);
+            int modifier = scoreTemp >= 0 ? 1 : -1;
+            float num = value * Mathf.Pow(Mathf.Abs(scoreTemp) / rewardThreshold, 2) * modifier;
+
             return (Mathf.Clamp(num, -1, 1) + 1) / 2;
         }
     }
