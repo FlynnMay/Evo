@@ -79,6 +79,11 @@ namespace Evo
         [SerializeField]
         [Tooltip("Set this to the total score you would like each agent to get by the time they reach their goal")]
         public int rewardThreshold = 0;
+        
+        [SerializeField]
+        [Tooltip("The greater the importance the more an agent favours rewards")]
+        [Range(1, 10)]
+        public int rewardImportance = 1;
 
         [Space(5)]
         [SerializeField]
@@ -169,7 +174,7 @@ namespace Evo
                 .GetMethod("GetValue")
                 .Invoke(fitnessFunction, new object[] { agent });
 
-            value = agent.CalculateRewardPenalties(value, rewardThreshold);
+            value = agent.CalculateRewardPenalties(value, rewardThreshold, rewardImportance);
 
             return value;
         }

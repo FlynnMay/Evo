@@ -9701,6 +9701,7 @@ MonoBehaviour:
   genomeSize: 30
   agentDNAType: {fileID: 11400000, guid: 0b901c6279bd8f04b9aaeb85314b8d07, type: 2}
   rewardThreshold: 4
+  rewardImportance: 10
   timerSettings:
     useTimer: 1
     timerType: 0

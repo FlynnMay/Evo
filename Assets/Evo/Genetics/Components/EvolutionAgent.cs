@@ -134,14 +134,14 @@ namespace Evo
         /// <param name="value"></param>
         /// <param name="rewardThreshold"></param>
         /// <returns>the input value weighted by the score and rewardThreshold</returns>
-        public float CalculateRewardPenalties(float value, float rewardThreshold)
+        public float CalculateRewardPenalties(float value, float rewardThreshold, int rewardImportance)
         {
             if (rewardThreshold == 0)
                 return value;
 
             float scoreTemp = Mathf.Clamp(Score, int.MinValue, rewardThreshold);
             int modifier = scoreTemp >= 0 ? 1 : -1;
-            float num = value * Mathf.Pow(Mathf.Abs(scoreTemp) / rewardThreshold, 2) * modifier;
+            float num = value * Mathf.Pow(Mathf.Abs(scoreTemp) / rewardThreshold, rewardImportance) * modifier;
 
             return (Mathf.Clamp(num, -1, 1) + 1) / 2;
         }
