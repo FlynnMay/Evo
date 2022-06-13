@@ -81,9 +81,9 @@ namespace Evo
         public int rewardThreshold = 0;
         
         [SerializeField]
-        [Tooltip("The greater the importance the more an agent favours rewards")]
+        [Tooltip("The greater the importance the more an agent favours higher reward values, the trade off is lower reward values may not be worth enough")]
         [Range(1, 10)]
-        public int rewardImportance = 1;
+        public int higherRewardImportance = 1;
 
         [Space(5)]
         [SerializeField]
@@ -174,7 +174,7 @@ namespace Evo
                 .GetMethod("GetValue")
                 .Invoke(fitnessFunction, new object[] { agent });
 
-            value = agent.CalculateRewardPenalties(value, rewardThreshold, rewardImportance);
+            value = agent.CalculateRewardPenalties(value, rewardThreshold, higherRewardImportance);
 
             return value;
         }
