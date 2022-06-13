@@ -125,7 +125,7 @@ namespace Evo
             geneticAlgorithm = new EvoGeneticAlgorithm(genomes, (int)genomeSize, random, this, mutationRate, (int)eliteCount);
         }
 
-        void Update()
+        void LateUpdate()
         {
             if (timerSettings.useTimer)
             {
