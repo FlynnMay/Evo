@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(Tester), true)]
 public class TestEditor : Editor
 {
@@ -21,3 +22,4 @@ public class TestEditor : Editor
         //EditorGUILayout.HelpBox("Use this to test the Neural Net with out launching the app!", MessageType.Info);
     }
 }
+#endif

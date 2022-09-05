@@ -4,6 +4,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEditor;
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(BoundsGenerator))]
 public class BoundsGeneratorEditor : Editor
 {
@@ -18,3 +19,4 @@ public class BoundsGeneratorEditor : Editor
         }
     }
 }
+#endif
