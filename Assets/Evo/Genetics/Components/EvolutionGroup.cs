@@ -13,7 +13,6 @@ namespace Evo
     /// </summary>
     public class EvolutionGroup : MonoBehaviour, IEvolutionInstructions
     {
-
         [Serializable]
         private class TimerSettings
         {
