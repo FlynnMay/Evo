@@ -1,2 +1,2 @@
-# NeuralNetwork
-Attempting to learn neural networks, this project isn't complete.
+# Genetic Algorithm
+An implementation of the genetic algorithm for Unity Gameobjects.
